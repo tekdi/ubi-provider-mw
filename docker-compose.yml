@@ -1,0 +1,11 @@
+version: "3.6"
+
+services:
+  backend:
+    image: onest-network-backend-p-22
+    container_name: "onest-network-backend-p-22"
+    restart: always
+    ports:
+      - 4000:3000
+    env_file:
+      - /home/ubuntu/onest/onest-backend-network-p/ll/.env
