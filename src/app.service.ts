@@ -32,7 +32,7 @@ export class AppService {
     private readonly s3Service: S3Service
   ) {}
   private base_url = process.env.BASE_URL;
-  private strapi_base_url = process.env.STRAPI_URL;
+  private strapi_base_url = process.env.PROVIDER_API_URL;
 
   getHello(): string {
     return "kahani-provider service is running!!";
