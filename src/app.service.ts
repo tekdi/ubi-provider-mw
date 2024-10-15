@@ -302,6 +302,132 @@ export class AppService {
     }
   }
 
+  // async getCoursesFromFlnV2New(body: {
+  //   context: components["schemas"]["Context"];
+  //   message: { intent: components["schemas"]["Intent"] };
+  // }) {
+  //   console.log("body >> ", JSON.stringify(body));
+  //   const intent: any = body.message.intent;
+  //   console.log("intent >> ", intent);
+
+  //   console.log("domain >> ", body.context.domain);
+  //   const gender = intent?.fulfillment?.customer?.person?.gender;
+  //   const name = intent?.item?.descriptor?.name;
+  //   const iTags = intent?.item?.tags || [];
+  //   const tags = iTags.map((tag: any) => {
+  //     let obj = {};
+  //     obj[tag.descriptor.code] = tag.list.map((item: any) => {
+  //       return item.value;
+  //     });
+  //     return obj;
+  //   });
+  //   const iLocations = intent?.provider?.locations || [];
+  //   const locations = iLocations.map((location: any) => {
+  //     return location.city.name;
+  //   });
+
+  //   let searchPayload = {
+  //     RequestInfo: {
+  //       apiId: "benefits-services",
+  //       ver: "1.0",
+  //       ts: null,
+  //       action: "_search",
+  //       did: null,
+  //       key: null,
+  //       msgId: "search_with_criteria",
+  //       authToken: "dfcca143-b5a6-4726-b5cd-c2c949cb0f2b",
+  //       correlationId: null,
+  //       userInfo: {
+  //         id: "1",
+  //         userName: null,
+  //         name: null,
+  //         type: null,
+  //         mobileNumber: null,
+  //         emailId: null,
+  //         roles: null,
+  //         uuid: "40dceade-992d-4a8f-8243-19dda76a4171",
+  //       },
+  //     },
+  //     MdmsCriteria: {
+  //       tenantId: "Benefits.Benefit1",
+  //       moduleDetails: [
+  //         {
+  //           moduleName: "Benefits",
+  //           masterDetails: [
+  //             {
+  //               name: "BenefitsTable",
+  //               filter: "",
+  //             },
+  //           ],
+  //         },
+  //       ],
+  //     },
+  //   };
+
+  //   try {
+  //     // Replace Hasura call with HTTP request to Strapi
+  //     // const response = await axios.post(
+  //     //   `http://localhost:8094/mdms-v2/v1/_search`,
+  //     //   searchPayload
+  //     // );
+
+  //     const flnResponse = [
+  //       {
+  //         ResponseInfo: null,
+  //         MdmsRes: {
+  //           Benefits: {
+  //             BenefitsTable: [
+  //               {
+  //                 BenefitID: "BEN-002",
+  //                 auto_renew: true,
+  //                 benefit_name: "Scholarship Benefit",
+  //                 failed_student: false,
+  //                 Application_end: "2024-12-31",
+  //                 eligibility_age: 16,
+  //                 benefit_provider: "Govt. of Punjab",
+  //                 Application_start: "2024-01-01",
+  //                 eligibility_caste: "OBC",
+  //                 eligibility_class: "10th",
+  //                 eligibility_marks: "60%",
+  //                 eligibility_gender: "B",
+  //                 eligibility_income: "2,50,000",
+  //                 benefit_description: "Provides financial aid to students",
+  //                 eligibility_subject: "Science",
+  //                 beneficiary_count_max: 500,
+  //                 eligibility_attendance: "75%",
+  //                 eligibility_child_count: 2,
+  //                 allow_with_other_benefit: true,
+  //                 eligibility_student_type: "dayscholar",
+  //                 eligibility_qualification: "10th Pass",
+  //                 finance_parent_occupation: "Farmer",
+  //               },
+  //             ],
+  //           },
+  //         },
+  //       },
+  //     ];
+
+  //     // Use the mapping function to transform the response
+  //     const mappedResponse = await this.mapFlnResponseToDesiredFormatNew(
+  //       flnResponse
+  //     );
+
+  //     const catalog = flnCatalogGenerator(mappedResponse, name);
+  //     body.context.action = "on_search";
+  //     const courseData: any = {
+  //       context: body.context,
+  //       message: {
+  //         catalog: catalog,
+  //       },
+  //     };
+
+  //     return courseData;
+  //   } catch (error) {
+  //     console.log("err: ", error);
+  //     throw new InternalServerErrorException(error);
+  //   }
+  // }
+
   mapFlnResponseToDesiredFormat(flnResponse: any[]): any[] {
     return flnResponse.map((item: any) => ({
       id: item?.id.toString(),
@@ -325,7 +451,7 @@ export class AppService {
       currency: item?.currency || "INR",
       createdAt: item?.createdAt,
       updatedAt: item?.updatedAt,
-      amount: item?.price || null, // Assuming 'price' represents the amount
+      amount: item?.price || "1000", // Assuming 'price' represents the amount
       applicationDeadline: item?.application_deadline,
       extendedDeadline: item?.extended_deadline || null,
       providerId: item?.provider?.id || null,
@@ -360,6 +486,64 @@ export class AppService {
       termsAndConditions: "This is terms and condition for this", // Static value
     }));
   }
+
+  // mapFlnResponseToDesiredFormatNew(flnResponse: any[]): any[] {
+  //   return flnResponse
+  //     .map((response: any) =>
+  //       response?.MdmsRes?.Benefits?.BenefitsTable?.map((item: any) => ({
+  //         id: item?.BenefitID || "N/A", // Mapping BenefitID to id
+  //         documentId: null, // No equivalent field in the new response structure
+  //         name: item?.benefit_name || "N/A", // benefit_name mapped to name
+  //         description: item?.benefit_description || "N/A", // benefit_description mapped to description
+  //         gender: item?.eligibility_gender || "N/A", // eligibility_gender mapped to gender
+  //         min_qualification: item?.eligibility_qualification || "N/A", // eligibility_qualification mapped to min_qualification
+  //         annual_income: item?.eligibility_income || "N/A", // eligibility_income mapped to annual_income
+  //         disability: "N/A", // No equivalent field in the new structure
+  //         student_type: item?.eligibility_student_type || "N/A", // eligibility_student_type mapped to student_type
+  //         age: item?.eligibility_age || "N/A", // eligibility_age mapped to age
+  //         eligible_children_limit: item?.eligibility_child_count || "N/A", // eligibility_child_count mapped to eligible_children_limit
+  //         domicile: "N/A", // No equivalent field in the new structure
+  //         caste: item?.eligibility_caste || "N/A", // eligibility_caste mapped to caste
+  //         class: item?.eligibility_class || "N/A", // eligibility_class mapped to class
+  //         currency: "INR", // Static value
+  //         createdAt: null, // No equivalent field in the new structure
+  //         updatedAt: null, // No equivalent field in the new structure
+  //         amount: null, // No equivalent field in the new structure
+  //         applicationDeadline: item?.Application_end || "N/A", // Application_end mapped to applicationDeadline
+  //         extendedDeadline: null, // No equivalent field in the new structure
+  //         providerId: null, // No equivalent field in the new structure
+  //         providerName: item?.benefit_provider || "N/A", // benefit_provider mapped to providerName
+  //         providerEmail: "N/A", // No equivalent field in the new structure
+  //         additionalResources: "required", // Static value
+  //         applicationForm: "filled", // Static value
+  //         applicationProcessing: "test_abc", // Static value
+  //         applicationSubmissionDate: item?.Application_end || null, // Using applicationDeadline value here
+  //         category: "scholarship", // Static value
+  //         contactInformation: "N/A", // No equivalent field in the new structure
+  //         creator: item?.benefit_provider || "Unknown", // benefit_provider mapped to creator
+  //         domain: "finance", // Static value
+  //         duration: "3 month", // Static value
+  //         eligibilityCriteria: item?.eligibility_qualification || "N/A", // eligibility_qualification mapped to eligibilityCriteria
+  //         keywords: "scholarship", // Static value
+  //         noOfRecipients: item?.beneficiary_count_max || "N/A", // beneficiary_count_max mapped to noOfRecipients
+  //         eligibility: {
+  //           caste: item?.eligibility_caste || "N/A",
+  //           class: item?.eligibility_class || "N/A",
+  //           income: item?.eligibility_income || "N/A",
+  //           student_type: item?.eligibility_student_type || "N/A",
+  //           gender: item?.eligibility_gender || "N/A",
+  //           qualification: item?.eligibility_qualification || "N/A",
+  //           age: item?.eligibility_age || "N/A",
+  //         }, // eligibility object construction
+  //         financialAmounts: [], // No equivalent data for amt_per_beneficiary in the new structure
+  //         sponsors: [], // No equivalent field in the new structure
+  //         selectionCriteria: item?.eligibility_student_type || "N/A", // eligibility_student_type mapped to selectionCriteria
+  //         status: "eligible", // Static value
+  //         termsAndConditions: "This is terms and condition for this", // Static value
+  //       }))
+  //     )
+  //     .flat(); // Flatten the array since MdmsRes.Benefits.BenefitsTable is nested
+  // }
 
   async handleSelect(selectDto: any) {
     console.log("select api calling", selectDto);
@@ -397,6 +581,105 @@ export class AppService {
     const resp = selectDto;
     return resp;
   }
+
+  // async handleSelectV2New(selectDto: any) {
+  //   let response = [];
+  //   console.log("select api calling", selectDto);
+  //   // fine tune the order here
+  //   const itemId = parseInt(selectDto.message.order.items[0].id);
+  //   // const courseData = (await this.hasuraService.getFlnContentById(itemId)).data
+  //   //   .scholarship_content;
+  //   let searchPayload = {
+  //     RequestInfo: {
+  //       apiId: "benefits-services",
+  //       ver: "1.0",
+  //       ts: null,
+  //       action: "_search",
+  //       did: null,
+  //       key: null,
+  //       msgId: "search_with_criteria",
+  //       authToken: "dfcca143-b5a6-4726-b5cd-c2c949cb0f2b",
+  //       correlationId: null,
+  //       userInfo: {
+  //         id: "1",
+  //         userName: null,
+  //         name: null,
+  //         type: null,
+  //         mobileNumber: null,
+  //         emailId: null,
+  //         roles: null,
+  //         uuid: "40dceade-992d-4a8f-8243-19dda76a4171",
+  //       },
+  //     },
+  //     MdmsCriteria: {
+  //       tenantId: "Benefits.Benefit1",
+  //       moduleDetails: [
+  //         {
+  //           moduleName: "Benefits",
+  //           masterDetails: [
+  //             {
+  //               name: "BenefitsTable",
+  //               filter: `${itemId}`,
+  //             },
+  //           ],
+  //         },
+  //       ],
+  //     },
+  //   };
+
+  //   // Replace Hasura call with HTTP request to Strapi
+  //   // const response = await axios.post(
+  //   //   `http://localhost:8094/mdms-v2/v1/_search`,
+  //   //   searchPayload
+  //   // );
+
+  //   const flnResponse = [
+  //     {
+  //       ResponseInfo: null,
+  //       MdmsRes: {
+  //         Benefits: {
+  //           BenefitsTable: [
+  //             {
+  //               BenefitID: "BEN-002",
+  //               auto_renew: true,
+  //               benefit_name: "Scholarship Benefit",
+  //               failed_student: false,
+  //               Application_end: "2024-12-31",
+  //               eligibility_age: 16,
+  //               benefit_provider: "Govt. of Punjab",
+  //               Application_start: "2024-01-01",
+  //               eligibility_caste: "OBC",
+  //               eligibility_class: "10th",
+  //               eligibility_marks: "60%",
+  //               eligibility_gender: "B",
+  //               eligibility_income: "2,50,000",
+  //               benefit_description: "Provides financial aid to students",
+  //               eligibility_subject: "Science",
+  //               beneficiary_count_max: 500,
+  //               eligibility_attendance: "75%",
+  //               eligibility_child_count: 2,
+  //               allow_with_other_benefit: true,
+  //               eligibility_student_type: "dayscholar",
+  //               eligibility_qualification: "10th Pass",
+  //               finance_parent_occupation: "Farmer",
+  //             },
+  //           ],
+  //         },
+  //       },
+  //     },
+  //   ];
+
+  //   // Use the mapping function to transform the response
+  //   const mappedResponse = await this.mapFlnResponseToDesiredFormatNew(
+  //     flnResponse
+  //   );
+
+  //   const provider: any = selectItemMapper(mappedResponse);
+  //   selectDto.message.order = { provider };
+  //   selectDto.context.action = "on_select";
+  //   const resp = selectDto;
+  //   return resp;
+  // }
 
   async handleStatus(selectDto: any) {
     console.log("select api calling", selectDto);

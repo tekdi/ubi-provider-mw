@@ -29,6 +29,11 @@ export class AppController {
     return this.appService.getCoursesFromFlnV2(body);
   }
 
+  // @Post("/new/dsep/search")
+  // getCoursesFromFlnNew(@Body() body: any) {
+  //   return this.appService.getCoursesFromFlnV2New(body);
+  // }
+
   @Post("dsep/select")
   selectCourseV2(@Body() body: any) {
     return this.appService.handleSelectV2(body);
