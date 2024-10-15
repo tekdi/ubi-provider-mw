@@ -1,117 +1,181 @@
 <html>
-   <head>
-      <meta name="viewport" content="width=device-width, initial-scale=1" />
-      <style>
-         body {
-         font-family: Calibri, Helvetica, sans-serif;
-         background-color: rgb(245, 242, 242);
-         }
-         .container {
-         padding: 50px;
-         background-color: rgb(245, 242, 242);
-         }
-         input[type="text"],
-         input[type="password"],
-         textarea {
-         width: 100%;
-         padding: 15px;
-         margin: 5px 0 22px 0;
-         display: inline-block;
-         border: none;
-         background: #ffff;
-         }
-         input[type="text"]:focus,
-         input[type="password"]:focus {
-         background-color: #ffff;
-         outline: none;
-         }
-         div {
-         padding: 10px 0;
-         }
-         hr {
-         border: 1px solid #605f5f;
-         margin-bottom: 25px;
-         }
-         .registerbtn {
-         background-color: #e6eee6;
-         color: white;
-         padding: 16px 20px;
-         margin: 8px 0;
-         border: none;
-         cursor: pointer;
-         width: 100%;
-         opacity: 0.9;
-         }
-         .registerbtn:hover {
-         opacity: 1;
-         }
-         button {
-      background-color: #777977;
-      color: #fff;
-      padding: 10px 15px;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 16px;
-    }
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+      body {
+        font-family: Calibri, Helvetica, sans-serif;
+        background-color: rgb(245, 242, 242);
+      }
+      .container {
+        padding: 50px;
+        background-color: rgb(245, 242, 242);
+      }
+      input[type="text"],
+      input[type="password"],
+      textarea {
+        width: 100%;
+        padding: 15px;
+        margin: 5px 0 22px 0;
+        display: inline-block;
+        border: none;
+        background: #ffff;
+      }
+      input[type="text"]:focus,
+      input[type="password"]:focus {
+        background-color: #ffff;
+        outline: none;
+      }
+      div {
+        padding: 10px 0;
+      }
+      hr {
+        border: 1px solid #605f5f;
+        margin-bottom: 25px;
+      }
+      .registerbtn {
+        background-color: #e6eee6;
+        color: white;
+        padding: 16px 20px;
+        margin: 8px 0;
+        border: none;
+        cursor: pointer;
+        width: 100%;
+        opacity: 0.9;
+      }
+      .registerbtn:hover {
+        opacity: 1;
+      }
+      button {
+        background-color: #777977;
+        color: #fff;
+        padding: 10px 15px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 16px;
+      }
 
-    button:hover {
-      background-color: #747373;
-    }
-      </style>
-   </head>
-   <body>
-    <form action="http://localhost:3000/application-init/<%= item_id %>/<%= transaction_id %>" method="post">
-         <div class="container">
-            <center>
-               <h1>Please fill out the form</h1>
-            </center>
-            <hr />
-            <label> Name :</label>
-            <input
-               type="text"
-               name="name"
-               placeholder="Name"
-               size="15"
-               required="true"
-               />
-            <label> Email : </label>
-            <input
-               type="text"
-               name="email"
-               placeholder="Email Id"
-               size="15"
-               />
-            <!-- <label for="birth_date">Birth-Date :</label>
-            <input type="date" id="birth_date" name="birth_date"> -->
-            <div>
-               <label> Gender : </label>
-               <input type="radio" value="Male" name="gender" checked="" /> Male
-               <input type="radio" value="Female" name="gender" /> Female
-               <input type="radio" value="Other" name="gender" /> Other
-            </div>
-            <br/>
-            <label> Contact : </label>
-            <input
-               type="text"
-               name="phone"
-               placeholder="Country Code"
-               value="+91"
-               size="13"
-               pattern="^(?:\+?91)?[6-9]\d{9}$"
-               required="true"
-               />
-            <!-- Current Address :
-            <textarea
-               cols="80"
-               rows="5"
-               placeholder="Current Address"
-               value="address"
-               required=""
-               >
-        </textarea> -->
+      button:hover {
+        background-color: #747373;
+      }
+    </style>
+  </head>
+  <body>
+    <form
+      action="https://dev-uba-bpp.tekdinext.com/api
+      /application-init/<%= item_id %>/<%= transaction_id %>"
+      method="post"
+    >
+      <div class="container">
+        <center>
+          <h1>Please fill out the form</h1>
+        </center>
+        <hr />
+        <label> Name :</label>
+        <input
+          type="text"
+          name="name"
+          placeholder="Name"
+          size="15"
+          required="true"
+        />
+
+        <label> Email : </label>
+        <input type="text" name="email" placeholder="Email Id" size="15" />
+
+        <div>
+          <label> Gender : </label>
+          <input type="radio" value="Male" name="gender" checked="" /> Male
+          <input type="radio" value="Female" name="gender" /> Female
+          <input type="radio" value="Other" name="gender" /> Other
+        </div>
+        <br />
+
+        <label> Contact : </label>
+        <input
+          type="text"
+          name="phone"
+          placeholder="Country Code"
+          value="+91"
+          size="13"
+          pattern="^(?:\+?91)?[6-9]\d{9}$"
+          required="true"
+        />
+
+        <!-- Add new fields here -->
+
+        <label> Student's Name: </label>
+        <input
+          type="text"
+          name="student_name"
+          placeholder="Student's Name"
+          required="true"
+        />
+
+        <label> Father's Name: </label>
+        <input
+          type="text"
+          name="father_name"
+          placeholder="Father's Name"
+          required="true"
+        />
+
+        <label> Samagra ID: </label>
+        <input
+          type="text"
+          name="samagra_id"
+          placeholder="Samagra ID"
+          required="true"
+        />
+
+        <label> Class: </label>
+        <input type="text" name="class" placeholder="Class" required="true" />
+
+        <label> Resident Type: </label>
+        <input
+          type="text"
+          name="resident_type"
+          placeholder="Resident Type"
+          required="true"
+        />
+
+        <label> Aadhaar: </label>
+        <input
+          type="text"
+          name="aadhaar"
+          placeholder="Aadhaar"
+          required="true"
+        />
+
+        <label> Caste Number: </label>
+        <input
+          type="text"
+          name="caste_number"
+          placeholder="Caste Number"
+          required="true"
+        />
+
+        <label> Income Number: </label>
+        <input
+          type="text"
+          name="income_number"
+          placeholder="Income Number"
+          required="true"
+        />
+
+        <label> Marks of Previous Class: </label>
+        <input
+          type="text"
+          name="marks_previous_class"
+          placeholder="Marks of Previous Class"
+          required="true"
+        />
+
+        <label> Caste: </label>
+        <input type="text" name="caste" placeholder="Caste" required="true" />
+
         <center><button type="submit">Submit</button></center>
-         </div>
-      </form>
-   </body>
+      </div>
+    </form>
+  </body>
 </html>

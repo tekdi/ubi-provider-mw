@@ -276,7 +276,7 @@ export class AppService {
     try {
       // Replace Hasura call with HTTP request to Strapi
       const response = await axios.get(
-        `${this.strapi_base_url}/api/scholarships?populate[eligibility][populate]=*&populate[provider]=*&populate[financial_information][populate]=*&populate[sponsors]=*`
+        `${this.strapi_base_url}/api/scholarships?filters[is_published][$eq]=true&populate[eligibility][populate]=*&populate[provider]=*&populate[financial_information][populate]=*&populate[sponsors]=*`
       );
 
       const flnResponse = response.data.data;
@@ -433,7 +433,7 @@ export class AppService {
       id: item?.id.toString(),
       documentId: item?.documentId,
       name: item?.name,
-      description: item?.description,
+      description: item?.description || "N/A",
       gender: item?.eligibility?.gender || "N/A",
       min_qualification: item?.eligibility?.min_qualification || "NA",
       annual_income: item?.eligibility?.annual_income || "NA",
@@ -570,7 +570,11 @@ export class AppService {
       `${this.strapi_base_url}/api/scholarships?filters[id][$eq]=${itemId}&populate[eligibility][populate]=*&populate[provider]=*&populate[financial_information][populate]=*&populate[sponsors]=*`
     );
 
+    console.log("courseData---->>", courseData?.data?.data);
+
     response.push(courseData?.data?.data?.[0]);
+
+    console.log("response-->>", response);
 
     // Use the mapping function to transform the response
     const mappedResponse = await this.mapFlnResponseToDesiredFormat(response);
@@ -1044,7 +1048,16 @@ export class AppService {
       // Prepare the payload for the POST request
       const payload = {
         data: {
-          name: body?.name || "NA",
+          student_name: body?.student_name || "NA",
+          father_name: body?.father_name || "NA",
+          samagra_id: body?.samagra_id || "NA",
+          class: body?.class || "NA",
+          resident_type: body?.resident_type || "NA",
+          aadhaar: body?.aadhaar || "NA",
+          caste_number: body?.caste_number || "NA",
+          income_number: body?.income_number || "NA",
+          marks_previous_class: body?.marks_previous_class || "NA",
+          caste: body?.caste || "NA",
           email: body?.email || "NA",
           phone: body?.phone || "NA",
           gender: body?.gender || "NA",
