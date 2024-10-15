@@ -621,7 +621,7 @@ export const selectItemMapper = (providerArr: any) => {
         id: course.id,
         descriptor: {
           name: course.name || "",
-          long_desc: course.description || "",
+          long_desc: course.long_description || "",
         },
         price: {
           currency: course?.currency,

@@ -434,6 +434,7 @@ export class AppService {
       documentId: item?.documentId,
       name: item?.name,
       description: item?.description || "N/A",
+      long_description: item?.long_description || "N/A",
       gender: item?.eligibility?.gender || "N/A",
       min_qualification: item?.eligibility?.min_qualification || "NA",
       annual_income: item?.eligibility?.annual_income || "NA",
