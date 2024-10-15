@@ -451,7 +451,7 @@ export class AppService {
       currency: item?.currency || "INR",
       createdAt: item?.createdAt,
       updatedAt: item?.updatedAt,
-      amount: item?.price || "1000", // Assuming 'price' represents the amount
+      amount: item?.price?.toString() || "1000", // Assuming 'price' represents the amount
       applicationDeadline: item?.application_deadline,
       extendedDeadline: item?.extended_deadline || null,
       providerId: item?.provider?.id || null,
