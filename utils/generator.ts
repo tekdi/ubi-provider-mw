@@ -662,6 +662,194 @@ export const selectItemMapper = (providerArr: any) => {
   return providerObj;
 };
 
+export const selectItemMapperNew = (input: any) => {
+  console.log("input-->>", JSON.stringify(input));
+  let providerObj = {
+    provider: {
+      id: input[0].id,
+      descriptor: {
+        name: input[0].name,
+        short_desc: input[0].description,
+        images: [
+          {
+            url: "https://xyz.com/logo", // Placeholder: Replace with actual logo URL if available
+          },
+        ],
+      },
+      locations: [
+        {
+          id: "L1",
+          city: {
+            name: "Pune",
+            code: "std:020", // You can modify based on location data
+          },
+          state: {
+            name: "Maharastra",
+            code: "MH",
+          },
+        },
+        {
+          id: "L2",
+          city: {
+            name: "Thane",
+            code: "std:022", // Modify as per actual input location
+          },
+          state: {
+            name: "Maharastra",
+            code: "MH",
+          },
+        },
+      ],
+      rateable: false,
+    },
+    items: [
+      {
+        id: input[0].id,
+        descriptor: {
+          name: input[0].name,
+          long_desc: input[0].long_description,
+        },
+        price: {
+          currency: input[0].currency,
+          value: input[0].amount,
+        },
+        time: {
+          range: {
+            start: input[0].createdAt,
+            end: input[0].applicationDeadline,
+          },
+        },
+        rateable: false,
+        tags: [
+          {
+            display: true,
+            descriptor: {
+              code: "background-eligibility",
+              name: "Background eligibility",
+            },
+            list: input[0].eligibility.caste.map((caste) => ({
+              descriptor: {
+                code: "social-eligibility",
+                name: "Social eligibility",
+                short_desc:
+                  "Social eligibility of the candidate to be eligible",
+              },
+              value: caste.caste_name,
+              display: true,
+            })),
+          },
+          {
+            display: true,
+            descriptor: {
+              code: "academic-eligibility",
+              name: "Academic Eligibility",
+            },
+            list: input[0].eligibility.class.map((cl) => ({
+              descriptor: {
+                code: "course-name",
+                name: "Class",
+              },
+              value: `Class-${cl.class}`,
+              display: true,
+            })),
+          },
+          {
+            display: true,
+            descriptor: {
+              code: "required-docs",
+              name: "Required documents",
+            },
+            list: [
+              {
+                descriptor: {
+                  code: "mandatory-doc",
+                  name: "Mandatory document",
+                },
+                value: "Applicant Photo",
+                display: true,
+              },
+              {
+                descriptor: {
+                  code: "mandatory-doc",
+                  name: "Mandatory document",
+                },
+                value: "Proof of Identity",
+                display: true,
+              },
+            ],
+          },
+          {
+            display: true,
+            descriptor: {
+              code: "additional-info",
+              name: "Additional info",
+            },
+            list: [
+              {
+                descriptor: {
+                  code: "faq-url",
+                  name: "FAQ URL",
+                  short_desc: "Link to FAQ",
+                },
+                value: "https://www.vs.co.in/vs/resources/68/faq/1015_27.html",
+                display: true,
+              },
+              {
+                descriptor: {
+                  code: "tnc-url",
+                  name: "T&C URL",
+                  short_desc: "Link to terms & conditions",
+                },
+                value: "https://www.vs.co.in/vs/resources/68/tnc/1015_27.html",
+                display: true,
+              },
+            ],
+          },
+        ],
+        location_ids: ["L1", "L2"],
+        fulfillment_ids: ["VSP_FUL_1113"],
+      },
+    ],
+    fulfillments: [
+      {
+        id: "VSP_FUL_1113",
+        tracking: false,
+      },
+    ],
+    quote: {
+      price: {
+        currency: "INR",
+        value: "250000",
+      },
+      breakup: [
+        {
+          title: "Tution fee",
+          price: {
+            currency: "INR",
+            value: "150000",
+          },
+        },
+        {
+          title: "Hostel fee",
+          price: {
+            currency: "INR",
+            value: "50000",
+          },
+        },
+        {
+          title: "Books",
+          price: {
+            currency: "INR",
+            value: "50000",
+          },
+        },
+      ],
+    },
+  };
+
+  return providerObj;
+};
+
 export const confirmItemMapper = (item: any) => {
   console.log("item 716--------------------------------------", item);
   const confirmItemOrder = {

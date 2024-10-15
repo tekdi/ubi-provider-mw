@@ -10,6 +10,7 @@ import {
   flnCatalogGeneratorV4,
   scholarshipCatalogGenerator,
   confirmItemMapper,
+  selectItemMapperNew,
 } from "utils/generator";
 import * as crypto from "crypto";
 import { v4 as uuidv4 } from "uuid";
@@ -580,8 +581,7 @@ export class AppService {
     // Use the mapping function to transform the response
     const mappedResponse = await this.mapFlnResponseToDesiredFormat(response);
 
-    const provider: any = selectItemMapper(mappedResponse);
-    selectDto.message.order = { provider };
+    selectDto.message.order = selectItemMapperNew(mappedResponse);
     selectDto.context.action = "on_select";
     const resp = selectDto;
     return resp;
