@@ -666,13 +666,13 @@ export const selectItemMapperNew = (input: any) => {
   console.log("input-->>", JSON.stringify(input));
   let providerObj = {
     provider: {
-      id: input[0].id,
+      id: input?.[0]?.id,
       descriptor: {
-        name: input[0].name,
-        short_desc: input[0].description,
+        name: input?.[0]?.name,
+        short_desc: input?.[0]?.description,
         images: [
           {
-            url: "https://xyz.com/logo", // Placeholder: Replace with actual logo URL if available
+            url: "https://xyz.com/logo",
           },
         ],
       },
@@ -681,7 +681,7 @@ export const selectItemMapperNew = (input: any) => {
           id: "L1",
           city: {
             name: "Pune",
-            code: "std:020", // You can modify based on location data
+            code: "std:020",
           },
           state: {
             name: "Maharastra",
@@ -692,7 +692,7 @@ export const selectItemMapperNew = (input: any) => {
           id: "L2",
           city: {
             name: "Thane",
-            code: "std:022", // Modify as per actual input location
+            code: "std:022",
           },
           state: {
             name: "Maharastra",
@@ -704,19 +704,19 @@ export const selectItemMapperNew = (input: any) => {
     },
     items: [
       {
-        id: input[0].id,
+        id: input?.[0]?.id,
         descriptor: {
-          name: input[0].name,
-          long_desc: input[0].long_description,
+          name: input?.[0]?.name,
+          long_desc: input?.[0]?.long_description,
         },
         price: {
-          currency: input[0].currency,
-          value: input[0].amount,
+          currency: input?.[0]?.currency,
+          value: input?.[0]?.amount,
         },
         time: {
           range: {
-            start: input[0].createdAt,
-            end: input[0].applicationDeadline,
+            start: "2023-01-03T13:23:01+00:00",
+            end: "2023-02-03T13:23:01+00:00",
           },
         },
         rateable: false,
@@ -727,16 +727,47 @@ export const selectItemMapperNew = (input: any) => {
               code: "background-eligibility",
               name: "Background eligibility",
             },
-            list: input[0].eligibility.caste.map((caste) => ({
-              descriptor: {
-                code: "social-eligibility",
-                name: "Social eligibility",
-                short_desc:
-                  "Social eligibility of the candidate to be eligible",
+            list: [
+              {
+                descriptor: {
+                  code: "social-eligibility",
+                  name: "Social eligibility",
+                  short_desc:
+                    "Social eligibility of the candidate to be eligible",
+                },
+                value: input?.[0]?.eligibility?.caste?.[0]?.caste_name,
+                display: true,
               },
-              value: caste.caste_name,
-              display: true,
-            })),
+              {
+                descriptor: {
+                  code: "social-eligibility",
+                  name: "Social eligibility",
+                  short_desc:
+                    "Social eligibility of the candidate to be eligible",
+                },
+                value: "ST",
+                display: true,
+              },
+              {
+                descriptor: {
+                  code: "gender-eligibility",
+                  name: "Gender eligibility",
+                  short_desc: "Gender of the candidate to be eligible",
+                },
+                value: input?.[0]?.eligibility?.gender,
+                display: true,
+              },
+              {
+                descriptor: {
+                  code: "ann-hh-inc",
+                  name: "Maximum Annual Household Income",
+                  short_desc:
+                    "Maximum Family income per annum above which will render the applicant ineligible",
+                },
+                value: input?.[0]?.eligibility?.annual_income,
+                display: true,
+              },
+            ],
           },
           {
             display: true,
@@ -744,14 +775,90 @@ export const selectItemMapperNew = (input: any) => {
               code: "academic-eligibility",
               name: "Academic Eligibility",
             },
-            list: input[0].eligibility.class.map((cl) => ({
-              descriptor: {
-                code: "course-name",
-                name: "Class",
+            list: [
+              {
+                descriptor: {
+                  code: "course-name",
+                  name: "Name of the course",
+                },
+                value: input?.[0]?.eligibility?.class?.[0],
+                display: true,
               },
-              value: `Class-${cl.class}`,
-              display: true,
-            })),
+              {
+                descriptor: {
+                  code: "min-percentage",
+                  name: "Minimum percentage of marks to be obtained in the course for eligibility",
+                },
+                value: "60",
+                display: true,
+              },
+            ],
+          },
+          {
+            display: true,
+            descriptor: {
+              code: "academic-eligibility",
+              name: "Academic Eligibility",
+            },
+            list: [
+              {
+                descriptor: {
+                  code: "course-name",
+                  name: "Name of the course",
+                },
+                value: "Class-XII",
+                display: true,
+              },
+              {
+                descriptor: {
+                  code: "min-percentage",
+                  name: "Minimum percentage of marks to be obtained in the course for eligibility",
+                },
+                value: "60",
+                display: true,
+              },
+            ],
+          },
+          {
+            display: true,
+            descriptor: {
+              code: "academic-eligibility",
+              name: "Academic Eligibility",
+            },
+            list: [
+              {
+                descriptor: {
+                  code: "course-name",
+                  name: "Name of the course",
+                },
+                value: "Bachelor of Dental Surgery (BDS)",
+                display: true,
+              },
+              {
+                descriptor: {
+                  code: "course-level",
+                  name: "Level of the course",
+                },
+                value: "Under Graduate",
+                display: true,
+              },
+              {
+                descriptor: {
+                  code: "course-status",
+                  name: "Status of the course",
+                },
+                value: "In-Progress",
+                display: true,
+              },
+              {
+                descriptor: {
+                  code: "min-percentage",
+                  name: "Minimum percentage of marks to be obtained in the course for eligibility",
+                },
+                value: "60",
+                display: true,
+              },
+            ],
           },
           {
             display: true,
@@ -776,6 +883,22 @@ export const selectItemMapperNew = (input: any) => {
                 value: "Proof of Identity",
                 display: true,
               },
+              {
+                descriptor: {
+                  code: "mandatory-doc",
+                  name: "Mandatory document",
+                },
+                value: "Proof of Address",
+                display: true,
+              },
+              {
+                descriptor: {
+                  code: "optional-doc",
+                  name: "Optional document",
+                },
+                value: "PAN No/Domicile certificate",
+                display: true,
+              },
             ],
           },
           {
@@ -798,7 +921,7 @@ export const selectItemMapperNew = (input: any) => {
                 descriptor: {
                   code: "tnc-url",
                   name: "T&C URL",
-                  short_desc: "Link to terms & conditions",
+                  short_desc: input?.[0]?.termsAndConditions,
                 },
                 value: "https://www.vs.co.in/vs/resources/68/tnc/1015_27.html",
                 display: true,
