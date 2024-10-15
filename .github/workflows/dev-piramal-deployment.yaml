@@ -1,0 +1,27 @@
+name: Deploy to Piramal-OU-Dev
+on:
+  push:
+    branches:
+      - main
+jobs:
+   deploy_provider_on_piramal_Dev:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+    - 
+      name: Deploy Stack
+      uses: appleboy/ssh-action@master
+      with:
+          host: ${{ secrets.HOST_NAME_DEV }}
+          username: ${{ secrets.USERNAME_DEV }}
+          key: ${{ secrets.EC2_SSH_DEV }}
+          port: ${{ secrets.PORT_DEV }}
+          script: |    
+               cd ${{ secrets.TARGET_DIR_DEV }}
+               if [ -f .env ]; then
+               rm .env
+               fi
+               echo '${{ secrets.DEV_ENV }}"' > .env
+               ls -ltra
+               ./deploy.sh
+#Testing
