@@ -781,7 +781,7 @@ export const selectItemMapperNew = (input: any) => {
                   code: "course-name",
                   name: "Name of the course",
                 },
-                value: input?.[0]?.eligibility?.class?.[0],
+                value: input?.[0]?.eligibility?.class?.[0]?.class?.toString(),
                 display: true,
               },
               {
