@@ -973,6 +973,322 @@ export const selectItemMapperNew = (input: any) => {
   return providerObj;
 };
 
+export const confirmItemMapperNew = (input: any) => {
+  console.log("input-->>", JSON.stringify(input));
+  let providerObj = {
+    order: {
+      id: input?.[0]?.order_id,
+      provider: {
+        id: input?.[0]?.id,
+        descriptor: {
+          name: input?.[0]?.name,
+          short_desc: input?.[0]?.description,
+          images: [
+            {
+              url: "https://xyz.com/logo",
+            },
+          ],
+        },
+        locations: [
+          {
+            id: "L1",
+            city: {
+              name: "Pune",
+              code: "std:020",
+            },
+            state: {
+              name: "Maharastra",
+              code: "MH",
+            },
+          },
+          {
+            id: "L2",
+            city: {
+              name: "Thane",
+              code: "std:022",
+            },
+            state: {
+              name: "Maharastra",
+              code: "MH",
+            },
+          },
+        ],
+        rateable: false,
+      },
+      items: [
+        {
+          id: input?.[0]?.id,
+          descriptor: {
+            name: input?.[0]?.name,
+            long_desc: input?.[0]?.long_description,
+          },
+          price: {
+            currency: input?.[0]?.currency,
+            value: input?.[0]?.amount,
+          },
+          time: {
+            range: {
+              start: "2023-01-03T13:23:01+00:00",
+              end: "2023-02-03T13:23:01+00:00",
+            },
+          },
+          rateable: false,
+          tags: [
+            {
+              display: true,
+              descriptor: {
+                code: "background-eligibility",
+                name: "Background eligibility",
+              },
+              list: [
+                {
+                  descriptor: {
+                    code: "social-eligibility",
+                    name: "Social eligibility",
+                    short_desc:
+                      "Social eligibility of the candidate to be eligible",
+                  },
+                  value: input?.[0]?.eligibility?.caste?.[0]?.caste_name,
+                  display: true,
+                },
+                {
+                  descriptor: {
+                    code: "social-eligibility",
+                    name: "Social eligibility",
+                    short_desc:
+                      "Social eligibility of the candidate to be eligible",
+                  },
+                  value: "ST",
+                  display: true,
+                },
+                {
+                  descriptor: {
+                    code: "gender-eligibility",
+                    name: "Gender eligibility",
+                    short_desc: "Gender of the candidate to be eligible",
+                  },
+                  value: input?.[0]?.eligibility?.gender,
+                  display: true,
+                },
+                {
+                  descriptor: {
+                    code: "ann-hh-inc",
+                    name: "Maximum Annual Household Income",
+                    short_desc:
+                      "Maximum Family income per annum above which will render the applicant ineligible",
+                  },
+                  value: input?.[0]?.eligibility?.annual_income,
+                  display: true,
+                },
+              ],
+            },
+            {
+              display: true,
+              descriptor: {
+                code: "academic-eligibility",
+                name: "Academic Eligibility",
+              },
+              list: [
+                {
+                  descriptor: {
+                    code: "course-name",
+                    name: "Name of the course",
+                  },
+                  value: input?.[0]?.eligibility?.class?.[0]?.class?.toString(),
+                  display: true,
+                },
+                {
+                  descriptor: {
+                    code: "min-percentage",
+                    name: "Minimum percentage of marks to be obtained in the course for eligibility",
+                  },
+                  value: "60",
+                  display: true,
+                },
+              ],
+            },
+            {
+              display: true,
+              descriptor: {
+                code: "academic-eligibility",
+                name: "Academic Eligibility",
+              },
+              list: [
+                {
+                  descriptor: {
+                    code: "course-name",
+                    name: "Name of the course",
+                  },
+                  value: "Class-XII",
+                  display: true,
+                },
+                {
+                  descriptor: {
+                    code: "min-percentage",
+                    name: "Minimum percentage of marks to be obtained in the course for eligibility",
+                  },
+                  value: "60",
+                  display: true,
+                },
+              ],
+            },
+            {
+              display: true,
+              descriptor: {
+                code: "academic-eligibility",
+                name: "Academic Eligibility",
+              },
+              list: [
+                {
+                  descriptor: {
+                    code: "course-name",
+                    name: "Name of the course",
+                  },
+                  value: "Bachelor of Dental Surgery (BDS)",
+                  display: true,
+                },
+                {
+                  descriptor: {
+                    code: "course-level",
+                    name: "Level of the course",
+                  },
+                  value: "Under Graduate",
+                  display: true,
+                },
+                {
+                  descriptor: {
+                    code: "course-status",
+                    name: "Status of the course",
+                  },
+                  value: "In-Progress",
+                  display: true,
+                },
+                {
+                  descriptor: {
+                    code: "min-percentage",
+                    name: "Minimum percentage of marks to be obtained in the course for eligibility",
+                  },
+                  value: "60",
+                  display: true,
+                },
+              ],
+            },
+            {
+              display: true,
+              descriptor: {
+                code: "required-docs",
+                name: "Required documents",
+              },
+              list: [
+                {
+                  descriptor: {
+                    code: "mandatory-doc",
+                    name: "Mandatory document",
+                  },
+                  value: "Applicant Photo",
+                  display: true,
+                },
+                {
+                  descriptor: {
+                    code: "mandatory-doc",
+                    name: "Mandatory document",
+                  },
+                  value: "Proof of Identity",
+                  display: true,
+                },
+                {
+                  descriptor: {
+                    code: "mandatory-doc",
+                    name: "Mandatory document",
+                  },
+                  value: "Proof of Address",
+                  display: true,
+                },
+                {
+                  descriptor: {
+                    code: "optional-doc",
+                    name: "Optional document",
+                  },
+                  value: "PAN No/Domicile certificate",
+                  display: true,
+                },
+              ],
+            },
+            {
+              display: true,
+              descriptor: {
+                code: "additional-info",
+                name: "Additional info",
+              },
+              list: [
+                {
+                  descriptor: {
+                    code: "faq-url",
+                    name: "FAQ URL",
+                    short_desc: "Link to FAQ",
+                  },
+                  value:
+                    "https://www.vs.co.in/vs/resources/68/faq/1015_27.html",
+                  display: true,
+                },
+                {
+                  descriptor: {
+                    code: "tnc-url",
+                    name: "T&C URL",
+                    short_desc: input?.[0]?.termsAndConditions,
+                  },
+                  value:
+                    "https://www.vs.co.in/vs/resources/68/tnc/1015_27.html",
+                  display: true,
+                },
+              ],
+            },
+          ],
+          location_ids: ["L1", "L2"],
+          fulfillment_ids: ["VSP_FUL_1113"],
+        },
+      ],
+      fulfillments: [
+        {
+          id: "VSP_FUL_1113",
+          tracking: false,
+        },
+      ],
+      quote: {
+        price: {
+          currency: "INR",
+          value: "250000",
+        },
+        breakup: [
+          {
+            title: "Tution fee",
+            price: {
+              currency: "INR",
+              value: "150000",
+            },
+          },
+          {
+            title: "Hostel fee",
+            price: {
+              currency: "INR",
+              value: "50000",
+            },
+          },
+          {
+            title: "Books",
+            price: {
+              currency: "INR",
+              value: "50000",
+            },
+          },
+        ],
+      },
+    },
+  };
+
+  return providerObj;
+};
+
 export const confirmItemMapper = (item: any) => {
   console.log("item 716--------------------------------------", item);
   const confirmItemOrder = {

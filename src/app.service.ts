@@ -11,6 +11,7 @@ import {
   scholarshipCatalogGenerator,
   confirmItemMapper,
   selectItemMapperNew,
+  confirmItemMapperNew,
 } from "utils/generator";
 import * as crypto from "crypto";
 import { v4 as uuidv4 } from "uuid";
@@ -927,7 +928,10 @@ export class AppService {
     // Use the mapping function to transform the response
     const mappedResponse = await this.mapFlnResponseToDesiredFormat(response);
 
+    console.log("mappedResonse-->>", mappedResponse);
+
     const order_id: string = "TLEXP_" + this.generateRandomString();
+    mappedResponse[0].order_id = order_id;
 
     // get customer details based on submission id and content id
 
@@ -979,19 +983,14 @@ export class AppService {
       updateCustomerPayload
     );
 
-    const order = selectItemMapperNew(mappedResponse);
-
-    // const order: any = {
-    //   id: order_id,
-    //   ...confirmDto.message.order,
-    //   provider: { id, descriptor, rateable, locations, categories },
-    //   items,
-    // };
+    let order = confirmItemMapperNew(mappedResponse);
 
     order["state"] = "COMPLETE";
     order["updated_at"] = new Date(Date.now());
 
-    confirmDto.message.order = order;
+    console.log("order--->>", order);
+
+    confirmDto.message = order;
     confirmDto.context.action = "on_confirm";
     console.log("confirmDto", confirmDto);
     return confirmDto;
