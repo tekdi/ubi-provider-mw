@@ -954,11 +954,11 @@ export class AppService {
         last_name: customerData?.data?.data?.[0]?.last_name || "NA",
         father_name: customerData?.data?.data?.[0]?.father_name || "NA",
         samagra_id: customerData?.data?.data?.[0]?.samagra_id || "NA",
-        class: parseInt(customerData?.data?.data?.[0]?.class) || 0,
+        class: customerData?.data?.data?.[0]?.class || 0,
         resident_type: customerData?.data?.data?.[0]?.resident_type || "NA",
         aadhaar: customerData?.data?.data?.[0]?.aadhaar || "NA",
         marks_previous_class:
-          parseInt(customerData?.data?.data?.[0]?.marks_previous_class) || 0,
+          customerData?.data?.data?.[0]?.marks_previous_class || 0,
         caste: customerData?.data?.data?.[0]?.caste || "NA",
         application_status:
           customerData?.data?.data?.[0]?.application_status || "NA",
@@ -976,6 +976,8 @@ export class AppService {
         content_id: customerData?.data?.data?.[0]?.content_id || "NA",
       },
     };
+
+    console.log("updateCustomerPayload--->>", updateCustomerPayload);
 
     // Axios POST call
     const orderDetails = await axios.put(
@@ -1048,16 +1050,14 @@ export class AppService {
           last_name: body?.last_name || "NA",
           father_name: body?.father_name || "NA",
           samagra_id: body?.samagra_id || "NA",
-          class: parseInt(body?.class) || 0,
+          class: body?.class || 0,
           resident_type: body?.resident_type || "NA",
           aadhaar: body?.aadhaar || "NA",
-          marks_previous_class: parseInt(body?.marks_previous_class) || 0,
+          marks_previous_class: body?.marks_previous_class || 0,
           caste: body?.caste || "NA",
-          application_status: body?.application_status || "NA",
           current_school_name: body?.current_school_name || "NA",
           current_school_address: body?.current_school_address || "NA",
           application_date: formattedDate,
-          email: body?.email || "NA",
           phone: body?.phone || "NA",
           gender: body?.gender || "NA",
           order_id: body?.order_id || "NA",

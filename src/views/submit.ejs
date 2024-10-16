@@ -4,22 +4,22 @@
     <style>
       body {
         font-family: Calibri, Helvetica, sans-serif;
-        background-color: rgb(245, 242, 242);
+        background-color: #fff;
       }
       .container {
         padding: 20px;
-        background-color: rgb(245, 242, 242);
+        background-color: #fff;
       }
-      input[type="text"],
+      input,
       textarea {
         width: 100%;
         padding: 15px;
         margin: 5px 0 22px 0;
         display: inline-block;
-        border: none;
+        border: 1px solid #d5d5d5;
         background: #ffff;
       }
-      input[type="text"]:focus {
+      input:focus {
         background-color: #ffff;
         outline: none;
       }
@@ -44,16 +44,19 @@
         opacity: 1;
       }
       button {
-        background-color: #777977;
+        background-color: #3c5fdd; /* Set the background color to #3C5FDD */
         color: #fff;
         padding: 10px 15px;
         border: none;
-        border-radius: 4px;
+        border-radius: 25px; /* Make the button rounded */
         cursor: pointer;
         font-size: 16px;
+        width: 100%;
+        margin-top: 20px;
       }
+
       button:hover {
-        background-color: #747373;
+        background-color: #3451c9; /* A slightly darker shade for hover effect */
       }
     </style>
   </head>
@@ -97,7 +100,7 @@
           required="true"
         />
         <label>Class:</label>
-        <input type="text" name="class" placeholder="Class" required="true" />
+        <input type="number" name="class" placeholder="Class" required="true" />
         <label>Resident Type:</label>
         <input
           type="text"
@@ -114,20 +117,14 @@
         />
         <label>Marks of Previous Class:</label>
         <input
-          type="text"
+          type="number"
           name="marks_previous_class"
           placeholder="Marks of Previous Class"
           required="true"
         />
         <label>Caste:</label>
         <input type="text" name="caste" placeholder="Caste" required="true" />
-        <label>Application Status:</label>
-        <input
-          type="text"
-          name="application_status"
-          placeholder="Application Status"
-          required="true"
-        />
+
         <label>Current School Name:</label>
         <input
           type="text"
@@ -142,15 +139,7 @@
           placeholder="Current School Address"
           required="true"
         />
-        <label>Application Date:</label>
-        <input
-          type="text"
-          name="application_date"
-          placeholder="Application Date"
-          required="true"
-        />
-        <label>Email:</label>
-        <input type="text" name="email" placeholder="Email Id" required />
+
         <label>Phone:</label>
         <input
           type="text"
