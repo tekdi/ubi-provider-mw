@@ -11,7 +11,6 @@
         background-color: rgb(245, 242, 242);
       }
       input[type="text"],
-      input[type="password"],
       textarea {
         width: 100%;
         padding: 15px;
@@ -20,8 +19,7 @@
         border: none;
         background: #ffff;
       }
-      input[type="text"]:focus,
-      input[type="password"]:focus {
+      input[type="text"]:focus {
         background-color: #ffff;
         outline: none;
       }
@@ -62,7 +60,7 @@
   </head>
   <body>
     <form
-      action="https://dev-uba-bpp.tekdinext.com/api/application-init/<%= item_id %>/<%= transaction_id %>"
+      action="http://localhost:4000/application-init/<%= item_id %>/<%= transaction_id %>"
       method="post"
     >
       <div class="container">
@@ -70,48 +68,26 @@
           <h1>Please fill out the form</h1>
         </center>
         <hr />
-        <label> Name :</label>
+
+        <!-- Fields based on your request -->
+
+        <label>First Name:</label>
         <input
           type="text"
-          name="name"
-          placeholder="Name"
-          size="15"
+          name="first_name"
+          placeholder="First Name"
           required="true"
         />
 
-        <label> Email : </label>
-        <input type="text" name="email" placeholder="Email Id" size="15" />
-
-        <div>
-          <label> Gender : </label>
-          <input type="radio" value="Male" name="gender" checked="" /> Male
-          <input type="radio" value="Female" name="gender" /> Female
-          <input type="radio" value="Other" name="gender" /> Other
-        </div>
-        <br />
-
-        <label> Contact : </label>
+        <label>Last Name:</label>
         <input
           type="text"
-          name="phone"
-          placeholder="Country Code"
-          value="+91"
-          size="13"
-          pattern="^(?:\+?91)?[6-9]\d{9}$"
+          name="last_name"
+          placeholder="Last Name"
           required="true"
         />
 
-        <!-- Add new fields here -->
-
-        <label> Student's Name: </label>
-        <input
-          type="text"
-          name="student_name"
-          placeholder="Student's Name"
-          required="true"
-        />
-
-        <label> Father's Name: </label>
+        <label>Father's Name:</label>
         <input
           type="text"
           name="father_name"
@@ -119,7 +95,7 @@
           required="true"
         />
 
-        <label> Samagra ID: </label>
+        <label>Samagra ID:</label>
         <input
           type="text"
           name="samagra_id"
@@ -127,10 +103,10 @@
           required="true"
         />
 
-        <label> Class: </label>
+        <label>Class:</label>
         <input type="text" name="class" placeholder="Class" required="true" />
 
-        <label> Resident Type: </label>
+        <label>Resident Type:</label>
         <input
           type="text"
           name="resident_type"
@@ -138,7 +114,7 @@
           required="true"
         />
 
-        <label> Aadhaar: </label>
+        <label>Aadhaar:</label>
         <input
           type="text"
           name="aadhaar"
@@ -146,23 +122,7 @@
           required="true"
         />
 
-        <label> Caste Number: </label>
-        <input
-          type="text"
-          name="caste_number"
-          placeholder="Caste Number"
-          required="true"
-        />
-
-        <label> Income Number: </label>
-        <input
-          type="text"
-          name="income_number"
-          placeholder="Income Number"
-          required="true"
-        />
-
-        <label> Marks of Previous Class: </label>
+        <label>Marks of Previous Class:</label>
         <input
           type="text"
           name="marks_previous_class"
@@ -170,8 +130,59 @@
           required="true"
         />
 
-        <label> Caste: </label>
+        <label>Caste:</label>
         <input type="text" name="caste" placeholder="Caste" required="true" />
+
+        <label>Application Status:</label>
+        <input
+          type="text"
+          name="application_status"
+          placeholder="Application Status"
+          required="true"
+        />
+
+        <label>Current School Name:</label>
+        <input
+          type="text"
+          name="current_school_name"
+          placeholder="Current School Name"
+          required="true"
+        />
+
+        <label>Current School Address:</label>
+        <input
+          type="text"
+          name="current_school_address"
+          placeholder="Current School Address"
+          required="true"
+        />
+
+        <label>Application Date:</label>
+        <input
+          type="text"
+          name="application_date"
+          placeholder="Application Date"
+          required="true"
+        />
+
+        <label>Email:</label>
+        <input type="text" name="email" placeholder="Email Id" required />
+
+        <label>Phone:</label>
+        <input
+          type="text"
+          name="phone"
+          placeholder="Phone Number"
+          pattern="^(?:\+?91)?[6-9]\d{9}$"
+          required="true"
+        />
+
+        <label>Gender:</label>
+        <input type="radio" value="Male" name="gender" checked="" /> Male
+        <input type="radio" value="Female" name="gender" /> Female
+        <input type="radio" value="Other" name="gender" /> Other
+
+        <br />
 
         <center><button type="submit">Submit</button></center>
       </div>

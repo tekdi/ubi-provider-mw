@@ -1045,29 +1045,36 @@ export class AppService {
   async handleInitSubmitV2(id: any, transaction_id: string, body: any) {
     try {
       const submission_id = uuidv4();
+      const date = new Date();
+      const formattedDate = date.toISOString().split("T")[0];
 
       // Prepare the payload for the POST request
       const payload = {
         data: {
-          student_name: body?.student_name || "NA",
+          first_name: body?.first_name || "NA",
+          last_name: body?.last_name || "NA",
           father_name: body?.father_name || "NA",
           samagra_id: body?.samagra_id || "NA",
-          class: body?.class || "NA",
+          class: parseInt(body?.class) || 0,
           resident_type: body?.resident_type || "NA",
           aadhaar: body?.aadhaar || "NA",
-          caste_number: body?.caste_number || "NA",
-          income_number: body?.income_number || "NA",
-          marks_previous_class: body?.marks_previous_class || "NA",
+          marks_previous_class: parseInt(body?.marks_previous_class) || 0,
           caste: body?.caste || "NA",
+          application_status: body?.application_status || "NA",
+          current_school_name: body?.current_school_name || "NA",
+          current_school_address: body?.current_school_address || "NA",
+          application_date: formattedDate,
           email: body?.email || "NA",
           phone: body?.phone || "NA",
           gender: body?.gender || "NA",
           order_id: body?.order_id || "NA",
-          transaction_id: transaction_id,
-          submission_id: submission_id,
-          content_id: parseInt(id),
+          transaction_id: transaction_id || "NA",
+          submission_id: submission_id || "NA",
+          content_id: parseInt(id) || 0, // Assuming content_id is a number
         },
       };
+
+      console.log("payload-->>", payload);
 
       // Axios POST call
       const response = await axios.post(
