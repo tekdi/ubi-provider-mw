@@ -967,7 +967,6 @@ export class AppService {
         current_school_address:
           customerData?.data?.data?.[0]?.current_school_address || "NA",
         application_date: customerData?.data?.data?.[0]?.application_date,
-        email: customerData?.data?.data?.[0]?.email || "NA",
         phone: customerData?.data?.data?.[0]?.phone || "NA",
         gender: customerData?.data?.data?.[0]?.gender || "NA",
         order_id: order_id || 0,
@@ -978,6 +977,13 @@ export class AppService {
     };
 
     console.log("updateCustomerPayload--->>", updateCustomerPayload);
+
+    console.log(
+      "urlll--->>>",
+
+      `${this.strapi_base_url}/api/applications/${document_id}`,
+      updateCustomerPayload
+    );
 
     // Axios POST call
     const orderDetails = await axios.put(
