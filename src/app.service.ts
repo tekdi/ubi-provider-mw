@@ -928,7 +928,7 @@ export class AppService {
     const mappedResponse = await this.mapFlnResponseToDesiredFormat(response);
 
     const { id, descriptor, categories, locations, items, rateable }: any =
-      selectItemMapper(mappedResponse);
+      selectItemMapperNew(mappedResponse);
     const order_id: string = "TLEXP_" + this.generateRandomString();
 
     // get customer details based on submission id and content id
@@ -945,19 +945,6 @@ export class AppService {
     console.log("orderid--->>", order_id);
 
     //update customer details payload
-
-    let updateCustomerPayload1 = {
-      data: {
-        name: customerData?.data?.data?.[0]?.name || "NA",
-        email: customerData?.data?.data?.[0]?.email || "NA",
-        phone: customerData?.data?.data?.[0]?.phone || "NA",
-        gender: customerData?.data?.data?.[0]?.gender || "NA",
-        order_id: order_id || "NA", // Using the order_id parameter passed, or 'NA'
-        transaction_id: customerData?.data?.data?.[0]?.transaction_id || "NA",
-        submission_id: customerData?.data?.data?.[0]?.submission_id || "NA",
-        content_id: customerData?.data?.data?.[0]?.content_id || "NA",
-      },
-    };
 
     const updateCustomerPayload = {
       data: {
