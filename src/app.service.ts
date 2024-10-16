@@ -927,8 +927,6 @@ export class AppService {
     // Use the mapping function to transform the response
     const mappedResponse = await this.mapFlnResponseToDesiredFormat(response);
 
-    const { id, descriptor, categories, locations, items, rateable }: any =
-      selectItemMapperNew(mappedResponse);
     const order_id: string = "TLEXP_" + this.generateRandomString();
 
     // get customer details based on submission id and content id
@@ -981,38 +979,18 @@ export class AppService {
       updateCustomerPayload
     );
 
-    items[0].xinput = {
-      head: {
-        descriptor: { name: "Application Form" },
-        index: { min: 0, cur: 1, max: 1 },
-      },
-      form: {
-        data: orderDetails?.data?.data,
-        submission_id: orderDetails.data?.data?.submission_id,
-      },
-      required: true,
-    };
-    const order: any = {
-      id: order_id,
-      ...confirmDto.message.order,
-      provider: { id, descriptor, rateable, locations, categories },
-      items,
-    };
+    const order = selectItemMapperNew(mappedResponse);
+
+    // const order: any = {
+    //   id: order_id,
+    //   ...confirmDto.message.order,
+    //   provider: { id, descriptor, rateable, locations, categories },
+    //   items,
+    // };
+
     order["state"] = "COMPLETE";
     order["updated_at"] = new Date(Date.now());
-    order["fulfillments"] = [
-      {
-        agent: {
-          person: {
-            name: customer?.person?.name ? customer.person.name : "",
-          },
-          contact: {
-            phone: customer?.contact?.phone ? customer.contact.phone : "",
-            email: customer?.contact?.email ? customer.contact.email : "",
-          },
-        },
-      },
-    ];
+
     confirmDto.message.order = order;
     confirmDto.context.action = "on_confirm";
     console.log("confirmDto", confirmDto);
