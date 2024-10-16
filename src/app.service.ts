@@ -946,13 +946,42 @@ export class AppService {
 
     //update customer details payload
 
-    let updateCustomerPayload = {
+    let updateCustomerPayload1 = {
       data: {
         name: customerData?.data?.data?.[0]?.name || "NA",
         email: customerData?.data?.data?.[0]?.email || "NA",
         phone: customerData?.data?.data?.[0]?.phone || "NA",
         gender: customerData?.data?.data?.[0]?.gender || "NA",
         order_id: order_id || "NA", // Using the order_id parameter passed, or 'NA'
+        transaction_id: customerData?.data?.data?.[0]?.transaction_id || "NA",
+        submission_id: customerData?.data?.data?.[0]?.submission_id || "NA",
+        content_id: customerData?.data?.data?.[0]?.content_id || "NA",
+      },
+    };
+
+    const updateCustomerPayload = {
+      data: {
+        first_name: customerData?.data?.data?.[0]?.first_name || "NA",
+        last_name: customerData?.data?.data?.[0]?.last_name || "NA",
+        father_name: customerData?.data?.data?.[0]?.father_name || "NA",
+        samagra_id: customerData?.data?.data?.[0]?.samagra_id || "NA",
+        class: parseInt(customerData?.data?.data?.[0]?.class) || 0,
+        resident_type: customerData?.data?.data?.[0]?.resident_type || "NA",
+        aadhaar: customerData?.data?.data?.[0]?.aadhaar || "NA",
+        marks_previous_class:
+          parseInt(customerData?.data?.data?.[0]?.marks_previous_class) || 0,
+        caste: customerData?.data?.data?.[0]?.caste || "NA",
+        application_status:
+          customerData?.data?.data?.[0]?.application_status || "NA",
+        current_school_name:
+          customerData?.data?.data?.[0]?.current_school_name || "NA",
+        current_school_address:
+          customerData?.data?.data?.[0]?.current_school_address || "NA",
+        application_date: customerData?.data?.data?.[0]?.application_date,
+        email: customerData?.data?.data?.[0]?.email || "NA",
+        phone: customerData?.data?.data?.[0]?.phone || "NA",
+        gender: customerData?.data?.data?.[0]?.gender || "NA",
+        order_id: order_id || 0,
         transaction_id: customerData?.data?.data?.[0]?.transaction_id || "NA",
         submission_id: customerData?.data?.data?.[0]?.submission_id || "NA",
         content_id: customerData?.data?.data?.[0]?.content_id || "NA",
