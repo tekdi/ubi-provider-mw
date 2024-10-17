@@ -58,6 +58,12 @@
       button:hover {
         background-color: #3451c9; /* A slightly darker shade for hover effect */
       }
+      .gender-section {
+        display: inline-flex;
+      }
+      .gender-section input[type="radio"] {
+        margin: 2px 20px;
+      }
     </style>
   </head>
   <body>
@@ -149,10 +155,11 @@
           required="true"
         />
         <label>Gender:</label>
-        <input type="radio" value="Male" name="gender" checked="" /> Male
-        <input type="radio" value="Female" name="gender" /> Female
-        <input type="radio" value="Other" name="gender" /> Other
-        <br />
+        <div class="gender-section">
+          <input type="radio" value="Male" name="gender" checked="" /> Male
+          <input type="radio" value="Female" name="gender" /> Female
+          <input type="radio" value="Other" name="gender" /> Other
+        </div>
         <center><button type="submit">Submit</button></center>
       </div>
     </form>
