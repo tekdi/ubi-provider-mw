@@ -630,7 +630,7 @@ export const selectItemMapper = (providerArr: any) => {
         time: {
           range: {
             start: "2023-01-03T13:23:01+00:00",
-            end: "2023-02-03T13:23:01+00:00",
+            end: course?.applicationDeadline + "T00:00:00+00:00",
           },
         },
         rateable: false,
@@ -716,7 +716,7 @@ export const selectItemMapperNew = (input: any) => {
         time: {
           range: {
             start: "2023-01-03T13:23:01+00:00",
-            end: "2023-02-03T13:23:01+00:00",
+            end: input?.[0]?.applicationDeadline + "T00:00:00+00:00",
           },
         },
         rateable: false,
