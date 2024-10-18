@@ -1056,7 +1056,7 @@ export class AppService {
           last_name: body?.last_name || "NA",
           father_name: body?.father_name || "NA",
           samagra_id: body?.samagra_id || "NA",
-          class: body?.class || 0,
+          class: parseInt(body?.class) || 9,
           resident_type: body?.resident_type || "NA",
           aadhaar: body?.aadhaar || "NA",
           marks_previous_class: body?.marks_previous_class || 0,

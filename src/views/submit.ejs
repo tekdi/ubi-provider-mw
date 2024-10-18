@@ -11,7 +11,8 @@
         background-color: #fff;
       }
       input,
-      textarea {
+      textarea,
+      select {
         width: 100%;
         padding: 15px;
         margin: 5px 0 22px 0;
@@ -19,9 +20,14 @@
         border: 1px solid #d5d5d5;
         background: #ffff;
       }
-      input:focus {
+      input:focus,
+      select:focus {
         background-color: #ffff;
         outline: none;
+      }
+      .large-select {
+        font-size: 18px; /* Make text a bit larger */
+        padding: 20px; /* Increase padding */
       }
       div {
         padding: 10px 0;
@@ -105,15 +111,13 @@
           placeholder="Samagra ID"
           required="true"
         />
+
         <label>Class:</label>
-        <input type="number" name="class" placeholder="Class" required="true" />
-        <label>Resident Type:</label>
-        <input
-          type="text"
-          name="resident_type"
-          placeholder="Resident Type"
-          required="true"
-        />
+        <select class="large-select" name="class" required>
+          <option value="9">9</option>
+          <option value="10">10</option>
+        </select>
+
         <label>Aadhaar:</label>
         <input
           type="text"
@@ -136,17 +140,8 @@
           type="text"
           name="current_school_name"
           placeholder="Current School Name"
-          required="true"
-        />
-        <label>Current School Address:</label>
-        <input
-          type="text"
-          name="current_school_address"
-          placeholder="Current School Address"
-          required="true"
-        />
-
-        <label>Phone:</label>
+          required="true" 
+          <label>Phone:</label>
         <input
           type="text"
           name="phone"
@@ -156,9 +151,9 @@
         />
         <label>Gender:</label>
         <div class="gender-section">
-          <input type="radio" value="Male" name="gender" checked="" /> Male
-          <input type="radio" value="Female" name="gender" /> Female
-          <input type="radio" value="Other" name="gender" /> Other
+        <input type="radio" value="Male" name="gender" checked="" /> Male
+        <input type="radio" value="Female" name="gender" /> Female
+        <input type="radio" value="Other" name="gender" /> Other
         </div>
         <center><button type="submit">Submit</button></center>
       </div>
