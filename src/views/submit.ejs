@@ -118,6 +118,13 @@
           <option value="10">10</option>
         </select>
 
+        <label>Resident Type:</label>
+        <select class="large-select" name="resident_type" required>
+          <option value="Dayscholar">Dayscholar</option>
+          <option value="Hosteler">Hosteller</option>
+        </select>
+
+
         <label>Aadhaar:</label>
         <input
           type="text"
@@ -125,12 +132,13 @@
           placeholder="Aadhaar"
           required="true"
         />
-        <label>Marks of Previous Class:</label>
+        <label>Marks of Previous Class:</labelresident_type>
         <input
           type="number"
           name="marks_previous_class"
           placeholder="Marks of Previous Class"
           required="true"
+          step="0.01"
         />
         <label>Caste:</label>
         <input type="text" name="caste" placeholder="Caste" required="true" />
