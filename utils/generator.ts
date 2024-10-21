@@ -439,7 +439,7 @@ export const selectItemMapper = (providerArr: any) => {
   const id = providerArr[0].provider_id;
 
   const descriptor: components["schemas"]["Descriptor"] = {
-    name: providerArr[0].provider,
+    name: providerArr[0].providerName,
     short_desc: providerArr[0].description,
     images: [
       {
@@ -668,7 +668,7 @@ export const selectItemMapperNew = (input: any) => {
     provider: {
       id: input?.[0]?.id,
       descriptor: {
-        name: input?.[0]?.name,
+        name: input?.[0]?.providerName,
         short_desc: input?.[0]?.description,
         images: [
           {
@@ -981,7 +981,7 @@ export const confirmItemMapperNew = (input: any) => {
       provider: {
         id: input?.[0]?.id,
         descriptor: {
-          name: input?.[0]?.name,
+          name: input?.[0]?.providerName,
           short_desc: input?.[0]?.description,
           images: [
             {
