@@ -1,8 +1,6 @@
-name: Deploy to Piramal-OU-Dev
+name: UAT Deployment to Piramal-OU-Dev
 on:
-  push:
-    branches:
-      - uat
+  workflow_dispatch:
 jobs:
    deploy_provider_on_piramal_UAT:
     runs-on: ubuntu-latest
