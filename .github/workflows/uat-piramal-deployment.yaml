@@ -1,4 +1,4 @@
-name: UAT Deployment to Piramal-OU-Dev
+name: UAT Deployment to Piramal-OU
 on:
   workflow_dispatch:
 jobs:
