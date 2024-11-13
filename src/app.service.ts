@@ -277,11 +277,16 @@ export class AppService {
 
     try {
       // Replace Hasura call with HTTP request to Strapi
-      const response = await axios.get(
-        `${this.strapi_base_url}/api/scholarships?filters[is_published][$eq]=true&populate[eligibility][populate]=*&populate[provider]=*&populate[financial_information][populate]=*&populate[sponsors]=*`
+      // const response = await axios.get(
+      //   `${this.strapi_base_url}/api/scholarships?filters[is_published][$eq]=true&populate[eligibility][populate]=*&populate[provider]=*&populate[financial_information][populate]=*&populate[sponsors]=*`
+      // );
+
+      const response = await axios.post(
+        `${this.strapi_base_url}/benefits/v1/_getAll`,
+        {}
       );
 
-      const flnResponse = response.data.data;
+      const flnResponse = response.data;
 
       // Use the mapping function to transform the response
       const mappedResponse = await this.mapFlnResponseToDesiredFormat(
@@ -432,25 +437,28 @@ export class AppService {
 
   mapFlnResponseToDesiredFormat(flnResponse: any[]): any[] {
     return flnResponse.map((item: any) => ({
-      id: item?.id.toString(),
+      id: item?.benefitId,
       documentId: item?.documentId,
-      name: item?.name,
-      description: item?.description || "N/A",
-      long_description: item?.long_description || "N/A",
+      name: item?.benefitName,
+      description: item?.benefitDescription || "N/A",
+      long_description: item?.benefitDescription || "N/A",
       gender: item?.eligibility?.gender || "N/A",
-      min_qualification: item?.eligibility?.min_qualification || "NA",
-      annual_income: item?.eligibility?.annual_income || "NA",
-      disability: item?.eligibility?.disability || "NA",
-      student_type: item?.eligibility?.student_type || "NA",
+      min_qualification: item?.eligibility?.minQualification || "NA",
+      annual_income: item?.eligibility?.annualIncome || "NA",
+      disability:
+        item?.eligibility?.disability === true
+          ? "Yes"
+          : item?.eligibility?.disability === false
+          ? "No"
+          : "NA",
+      student_type: item?.eligibility?.studentType || "NA",
       age: item?.eligibility?.age || "NA",
-      eligible_children_limit:
-        item?.eligibility?.eligible_children_limit || "NA",
+      eligible_children_limit: item?.eligibility?.eligibleChildren || "NA",
       domicile: item?.eligibility?.domicile || "NA",
-      caste:
-        item?.eligibility?.caste?.map((c: any) => c?.caste_name).join(", ") ||
-        "N/A", // Join caste names into a single string
-      class:
-        item?.eligibility?.class?.map((c: any) => c?.class).join(", ") || "N/A", // Join caste names into a single string
+      caste: item?.eligibility?.caste || "N/A",
+      fieldOfStudy: item?.eligibility?.fieldOfStudy || "N/A",
+      attendancePercentage: item?.eligibility?.attendancePercentage || "N/A",
+      class: item?.eligibility?.class || "N/A",
       currency: item?.currency || "INR",
       createdAt: item?.createdAt,
       updatedAt: item?.updatedAt,
@@ -458,7 +466,7 @@ export class AppService {
       applicationDeadline: item?.application_deadline,
       extendedDeadline: item?.extended_deadline || null,
       providerId: item?.provider?.id || null,
-      providerName: item?.provider?.username || null,
+      providerName: item?.benefitProvider || "N/A",
       providerEmail: item?.provider?.email || "N/A",
       additionalResources: "required", // Static value as per original example
       applicationForm: "filled", // Static value as per original example
@@ -469,26 +477,86 @@ export class AppService {
       creator: item?.provider?.username || "Unknown",
       domain: "finance", // Static value as per original example
       duration: "3 month", // Static value as per original example
-      eligibilityCriteria: item?.eligibility?.min_qualification || "N/A",
+      eligibilityCriteria: item?.eligibility?.minQualification || "N/A",
       keywords: "scholarship", // Static value as per original example
-      noOfRecipients: item?.financial_information?.max_bebeficiary || "N/A",
+      noOfRecipients:
+        item?.financialInformation?.maxBeneficiaryAllowed?.toString() || "N/A",
       eligibility: item?.eligibility,
+      parentOccupation: item?.financialInformation?.parentOccupation,
       financialAmounts:
-        item?.financial_information?.amt_per_beneficiary?.map((b: any) => ({
-          caste: b?.caste,
-          amount: b?.amount,
-        })) || [], // Map over amt_per_beneficiary for caste and amount
+        item?.financialInformation?.amountPerBeneficiaryCategory || "N/A",
       sponsors:
         item?.sponsors?.map((sponsor: any) => ({
           name: sponsor?.sponsor_name,
           entityType: sponsor?.entity_type,
           sharePercent: sponsor?.share_percent,
         })) || [], // Map over sponsors
-      selectionCriteria: item?.eligibility?.student_type || "N/A",
-      status: "eligible", // Static value as per original example
-      termsAndConditions: "This is terms and condition for this", // Static value
+      selectionCriteria: item?.eligibility?.studentType || "N/A",
+      status: item?.status, // Static value as per original example
+      termsAndConditions:
+        item?.otherTermsAndConditions || "This is terms and condition for this", // Static value
     }));
   }
+
+  // mapFlnResponseToDesiredFormat(flnResponse: any[]): any[] {
+  //   return flnResponse.map((item: any) => ({
+  //     id: item?.id.toString(),
+  //     documentId: item?.documentId,
+  //     name: item?.name,
+  //     description: item?.description || "N/A",
+  //     long_description: item?.long_description || "N/A",
+  //     gender: item?.eligibility?.gender || "N/A",
+  //     min_qualification: item?.eligibility?.min_qualification || "NA",
+  //     annual_income: item?.eligibility?.annual_income || "NA",
+  //     disability: item?.eligibility?.disability || "NA",
+  //     student_type: item?.eligibility?.student_type || "NA",
+  //     age: item?.eligibility?.age || "NA",
+  //     eligible_children_limit:
+  //       item?.eligibility?.eligible_children_limit || "NA",
+  //     domicile: item?.eligibility?.domicile || "NA",
+  //     caste:
+  //       item?.eligibility?.caste?.map((c: any) => c?.caste_name).join(", ") ||
+  //       "N/A", // Join caste names into a single string
+  //     class:
+  //       item?.eligibility?.class?.map((c: any) => c?.class).join(", ") || "N/A", // Join caste names into a single string
+  //     currency: item?.currency || "INR",
+  //     createdAt: item?.createdAt,
+  //     updatedAt: item?.updatedAt,
+  //     amount: item?.price?.toString() || "1000", // Assuming 'price' represents the amount
+  //     applicationDeadline: item?.application_deadline,
+  //     extendedDeadline: item?.extended_deadline || null,
+  //     providerId: item?.provider?.id || null,
+  //     providerName: item?.provider?.username || null,
+  //     providerEmail: item?.provider?.email || "N/A",
+  //     additionalResources: "required", // Static value as per original example
+  //     applicationForm: "filled", // Static value as per original example
+  //     applicationProcessing: "test_abc", // Static value as per original example
+  //     applicationSubmissionDate: item?.extended_deadline || null,
+  //     category: "scholarship", // Static value as per original example
+  //     contactInformation: item?.provider?.email || "N/A",
+  //     creator: item?.provider?.username || "Unknown",
+  //     domain: "finance", // Static value as per original example
+  //     duration: "3 month", // Static value as per original example
+  //     eligibilityCriteria: item?.eligibility?.min_qualification || "N/A",
+  //     keywords: "scholarship", // Static value as per original example
+  //     noOfRecipients: item?.financial_information?.max_bebeficiary || "N/A",
+  //     eligibility: item?.eligibility,
+  //     financialAmounts:
+  //       item?.financial_information?.amt_per_beneficiary?.map((b: any) => ({
+  //         caste: b?.caste,
+  //         amount: b?.amount,
+  //       })) || [], // Map over amt_per_beneficiary for caste and amount
+  //     sponsors:
+  //       item?.sponsors?.map((sponsor: any) => ({
+  //         name: sponsor?.sponsor_name,
+  //         entityType: sponsor?.entity_type,
+  //         sharePercent: sponsor?.share_percent,
+  //       })) || [], // Map over sponsors
+  //     selectionCriteria: item?.eligibility?.student_type || "N/A",
+  //     status: "eligible", // Static value as per original example
+  //     termsAndConditions: "This is terms and condition for this", // Static value
+  //   }));
+  // }
 
   // mapFlnResponseToDesiredFormatNew(flnResponse: any[]): any[] {
   //   return flnResponse
@@ -566,16 +634,23 @@ export class AppService {
     let response = [];
     console.log("select api calling", selectDto);
     // fine tune the order here
-    const itemId = parseInt(selectDto.message.order.items[0].id);
+    const itemId = selectDto.message.order.items[0].id;
     // const courseData = (await this.hasuraService.getFlnContentById(itemId)).data
     //   .scholarship_content;
-    const courseData = await axios.get(
-      `${this.strapi_base_url}/api/scholarships?filters[id][$eq]=${itemId}&populate[eligibility][populate]=*&populate[provider]=*&populate[financial_information][populate]=*&populate[sponsors]=*`
+    // const courseData = await axios.get(
+    //   `${this.strapi_base_url}/api/scholarships?filters[id][$eq]=${itemId}&populate[eligibility][populate]=*&populate[provider]=*&populate[financial_information][populate]=*&populate[sponsors]=*`
+    // );
+
+    const courseData = await axios.post(
+      `${this.strapi_base_url}/benefits/v1/_get`,
+      {
+        benefitId: `${itemId}`,
+      }
     );
 
-    console.log("courseData---->>", courseData?.data?.data);
+    console.log("courseData---->>", courseData?.data);
 
-    response.push(courseData?.data?.data?.[0]);
+    response.push(courseData?.data);
 
     console.log("response-->>", response);
 
@@ -805,11 +880,14 @@ export class AppService {
   async handleInitV2(selectDto: any) {
     let response = [];
     const itemId = parseInt(selectDto.message.order.items[0].id);
-    const courseData = await axios.get(
-      `${this.strapi_base_url}/api/scholarships?filters[id][$eq]=${itemId}&populate[eligibility][populate]=*&populate[provider]=*&populate[financial_information][populate]=*&populate[sponsors]=*`
+    const courseData = await axios.post(
+      `${this.strapi_base_url}/benefits/v1/_get`,
+      {
+        benefitId: `${itemId}`,
+      }
     );
 
-    response.push(courseData?.data?.data?.[0]);
+    response.push(courseData?.data);
 
     // Use the mapping function to transform the response
     const mappedResponse = await this.mapFlnResponseToDesiredFormat(response);
@@ -918,9 +996,7 @@ export class AppService {
       confirmDto.message.order.items[0].xinput.form.submission_id;
     const itemId = parseInt(confirmDto?.message?.order?.items[0]?.id);
 
-    const courseData = await axios.get(
-      `${this.strapi_base_url}/api/scholarships?filters[id][$eq]=${itemId}&populate[eligibility][populate]=*&populate[provider]=*&populate[financial_information][populate]=*&populate[sponsors]=*`
-    );
+    const courseData = await axios.get(`${this.strapi_base_url}/`);
 
     console.log("courseData-->>", courseData?.data?.data?.[0]);
     response.push(courseData?.data?.data?.[0]);
@@ -1050,26 +1126,62 @@ export class AppService {
       const formattedDate = date.toISOString().split("T")[0];
 
       // Prepare the payload for the POST request
+      // const payload = {
+      //   data: {
+      //     first_name: body?.first_name || "NA",
+      //     last_name: body?.last_name || "NA",
+      //     father_name: body?.father_name || "NA",
+      //     samagra_id: body?.samagra_id || "NA",
+      //     class: parseInt(body?.class) || 9,
+      //     resident_type: body?.resident_type || "NA",
+      //     aadhaar: body?.aadhaar || "NA",
+      //     marks_previous_class: body?.marks_previous_class || 0,
+      //     caste: body?.caste || "NA",
+      //     current_school_name: body?.current_school_name || "NA",
+      //     current_school_address: body?.current_school_address || "NA",
+      //     application_date: formattedDate,
+      //     phone: body?.phone || "NA",
+      //     gender: body?.gender || "NA",
+      //     order_id: body?.order_id || "NA",
+      //     transaction_id: transaction_id || "NA",
+      //     submission_id: submission_id || "NA",
+      //     content_id: parseInt(id) || 0, // Assuming content_id is a number
+      //   },
+      // };
+
       const payload = {
-        data: {
-          first_name: body?.first_name || "NA",
-          last_name: body?.last_name || "NA",
-          father_name: body?.father_name || "NA",
-          samagra_id: body?.samagra_id || "NA",
-          class: parseInt(body?.class) || 9,
-          resident_type: body?.resident_type || "NA",
-          aadhaar: body?.aadhaar || "NA",
-          marks_previous_class: body?.marks_previous_class || 0,
-          caste: body?.caste || "NA",
-          current_school_name: body?.current_school_name || "NA",
-          current_school_address: body?.current_school_address || "NA",
-          application_date: formattedDate,
-          phone: body?.phone || "NA",
-          gender: body?.gender || "NA",
+        RequestInfo: {
+          apiId: "benefits-services",
+          ver: 1.0,
+          ts: 1234,
+          action: "_create",
+          did: null,
+          key: null,
+          msgId: "search with from and to values",
+          //  "authToken": "{{token}}",
+          userInfo: {
+            id: 24226,
+            uuid: "11b0e02b-0145-4de2-bc42-c97b96264807",
+            userName: "amr001",
+            name: "leela",
+            mobileNumber: body?.mobileNumber,
+            emailId: body?.emailId,
+            type: "EMPLOYEE",
+            active: true,
+            roles: [],
+            tenantId: "pb.amritsar",
+          },
+        },
+        Customer: {
+          id: "40e00eac-5a05-4096-8a23-cca315bc087c",
+          name: body?.first_name + " " + body?.last_name,
+          mobileNumber: body?.mobileNumber,
+          emailId: body?.emailId,
+          gender: body?.gender,
           order_id: body?.order_id || "NA",
           transaction_id: transaction_id || "NA",
           submission_id: submission_id || "NA",
-          content_id: parseInt(id) || 0, // Assuming content_id is a number
+          content_id: parseInt(id) || 0, // Assuming content_id is a number,
         },
       };
 
@@ -1077,7 +1189,7 @@ export class AppService {
 
       // Axios POST call
       const response = await axios.post(
-        `${this.strapi_base_url}/api/applications`,
+        `${this.strapi_base_url}/customer/v1/_upsert`,
         payload
       );
 
@@ -1087,7 +1199,7 @@ export class AppService {
       console.log("form data submitted >> ", response.data);
 
       // Return the submission_id
-      return response.data.data.submission_id;
+      return response.data.submission_id;
     } catch (error) {
       console.error("Error submitting form: ", error);
       return error;

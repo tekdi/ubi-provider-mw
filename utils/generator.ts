@@ -435,7 +435,7 @@ export const generateOrder = (
 };
 
 export const selectItemMapper = (providerArr: any) => {
-  console.log("providerArr-->>", JSON.stringify(providerArr));
+  console.log("providerArr009-->>", JSON.stringify(providerArr));
   const id = providerArr[0].provider_id;
 
   const descriptor: components["schemas"]["Descriptor"] = {
@@ -630,9 +630,12 @@ export const selectItemMapper = (providerArr: any) => {
         time: {
           range: {
             start: "2023-01-03T13:23:01+00:00",
-            end: course?.applicationDeadline + "T00:00:00+00:00",
+            end: course?.applicationDeadline
+              ? course.applicationDeadline + "T00:00:00+00:00"
+              : "2023-01-03T13:23:01+00:00",
           },
         },
+
         rateable: false,
         tags: tags,
         category_ids: categories.map((category) => {
@@ -663,7 +666,7 @@ export const selectItemMapper = (providerArr: any) => {
 };
 
 export const selectItemMapperNew = (input: any) => {
-  console.log("input-->>", JSON.stringify(input));
+  console.log("input-->>123", JSON.stringify(input));
   let providerObj = {
     provider: {
       id: input?.[0]?.id,
@@ -735,7 +738,7 @@ export const selectItemMapperNew = (input: any) => {
                   short_desc:
                     "Social eligibility of the candidate to be eligible",
                 },
-                value: input?.[0]?.eligibility?.caste?.[0]?.caste_name,
+                value: input?.[0]?.eligibility?.caste,
                 display: true,
               },
               {
@@ -764,7 +767,7 @@ export const selectItemMapperNew = (input: any) => {
                   short_desc:
                     "Maximum Family income per annum above which will render the applicant ineligible",
                 },
-                value: input?.[0]?.eligibility?.annual_income,
+                value: input?.[0]?.eligibility?.annualIncome,
                 display: true,
               },
             ],
@@ -781,7 +784,7 @@ export const selectItemMapperNew = (input: any) => {
                   code: "course-name",
                   name: "Name of the course",
                 },
-                value: input?.[0]?.eligibility?.class?.[0]?.class?.toString(),
+                value: input?.[0]?.eligibility?.class,
                 display: true,
               },
               {
@@ -789,7 +792,7 @@ export const selectItemMapperNew = (input: any) => {
                   code: "min-percentage",
                   name: "Minimum percentage of marks to be obtained in the course for eligibility",
                 },
-                value: "60",
+                value: input?.[0]?.eligibility?.marks,
                 display: true,
               },
             ],
