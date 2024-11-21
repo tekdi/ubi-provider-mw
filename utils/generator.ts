@@ -1305,8 +1305,8 @@ export const confirmItemMapperNew = (input: any) => {
           },
           time: {
             range: {
-              start: "2023-07-23T18:30:00.000000Z",
-              end: "2023-10-12T18:30:00.000000Z",
+              start: "2024-10-31T00:00:00+00:00",
+              end: "2024-12-31T00:00:00+00:00",
             },
           },
           rateable: false,
