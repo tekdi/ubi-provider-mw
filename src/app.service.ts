@@ -912,6 +912,7 @@ export class AppService {
   async handleInitSubmitV2(body: any) {
     try {
       const submission_id = uuidv4();
+      let savePath;
 
       const payload = {
         RequestInfo: {
@@ -947,16 +948,48 @@ export class AppService {
           additionalDetails: {},
           applicant: {
             id: Math.random().toString(36).substring(2, 12),
-            studentName: `${body?.firstName} ${body?.lastName}` || "NA",
-            fatherName: body?.fatherName || "NA",
-            caste: body?.caste || "NA",
-            income: body?.annualIncome || "NA",
-            gender: body?.gender,
+            applicationId: null,
+            studentName: `${body?.firstName} ${body?.lastName}` || "JOHN DOE",
+            fatherName: body?.fatherName || "GEORGE",
+            caste: body?.caste || "GENERAL",
+            income: body?.annualIncome || "5000",
+            gender: body?.gender || "All",
             age: body?.age || 10,
             disability: body?.disability || false,
+            samagraId: body?.samagra_id || "samagra-001",
+            currentSchoolName: body?.currentSchoolName || "ABC High School",
+            currentSchoolAddress:
+              body?.currentSchoolAddress || "123 Main St, City, State",
+            currentSchoolAddressDistrict:
+              body?.currentSchoolAddressDistrict || "District 1",
+            currentClass: body?.currentClass || "10",
+            previousYearMarks: body?.previousYearMarks || "85",
+            studentType: body?.studentType || "Regular",
+            aadharLast4Digits: body?.aadharLast4Digits || "1234",
           },
-          schema:
-            '[{"name":"id","value":"b642cec5-5c14-4c6a-b1cd-d017b5fb4cad"},{"name":"applicationNumber","value":"PB-BTR-2024-11-17-000148"},{"name":"individualId","value":"IndUs-123"},{"name":"programCode","value":"PROG-001"},{"name":"status","value":"ARCHIVED"},{"name":"applicantId","value":"applicant-132"},{"name":"studentName","value":"John Doe"},{"name":"fatherName","value":"Richard Doe"},{"name":"samagraId","value":"samagra-001"},{"name":"currentSchoolName","value":"ABC High School"},{"name":"currentSchoolAddress","value":"123 Main St, City, State"},{"name":"currentSchoolAddressDistrict","value":"District 1"},{"name":"currentClass","value":"10"},{"name":"previousYearMarks","value":"85"},{"name":"studentType","value":"Regular"},{"name":"aadharLast4Digits","value":"1234"},{"name":"caste","value":"General"},{"name":"income","value":"50000"},{"name":"gender","value":"Male"},{"name":"age","value":"15"},{"name":"disability","value":"false"}]',
+          schema: JSON.stringify([
+            { name: "id", value: "b642cec5-5c14-4c6a-b1cd-d017b5fb4cad" },
+            { name: "applicationNumber", value: "PB-BTR-2024-11-17-000148" },
+            { name: "individualId", value: "IndUs-123" },
+            { name: "programCode", value: "PROG-001" },
+            { name: "status", value: "ARCHIVED" },
+            { name: "applicantId", value: "applicant-132" },
+            { name: "studentName", value: "John Doe" },
+            { name: "fatherName", value: "Richard Doe" },
+            { name: "samagraId", value: "samagra-001" },
+            { name: "currentSchoolName", value: "ABC High School" },
+            { name: "currentSchoolAddress", value: "123 Main St, City, State" },
+            { name: "currentSchoolAddressDistrict", value: "District 1" },
+            { name: "currentClass", value: "10" },
+            { name: "previousYearMarks", value: "85" },
+            { name: "studentType", value: "Regular" },
+            { name: "aadharLast4Digits", value: "1234" },
+            { name: "caste", value: "General" },
+            { name: "income", value: "50000" },
+            { name: "gender", value: "Male" },
+            { name: "age", value: "15" },
+            { name: "disability", value: "false" },
+          ]),
         },
       };
 
@@ -964,9 +997,9 @@ export class AppService {
       const formData = new FormData();
 
       // Append the JSON payload for the 'application' field
-      formData.append("application", JSON.stringify(payload));
-
-      let savePath = null;
+      formData.append("application", JSON.stringify(payload), {
+        contentType: "application/json",
+      });
 
       // If there's a hostelerProof file, handle the file data
       if (body?.hostelerProof) {
@@ -978,7 +1011,7 @@ export class AppService {
 
         // Generate file path for saving the file temporarily
         const targetFolder = path.join(__dirname, "target");
-        savePath = path.join(targetFolder, "hostelerProof.pdf");
+        savePath = path.join(targetFolder, "sample(1).pdf");
         const dir = path.dirname(savePath);
         if (!fs.existsSync(dir)) {
           fs.mkdirSync(dir, { recursive: true });
@@ -990,10 +1023,76 @@ export class AppService {
         console.log(`File saved at: ${savePath}`);
 
         // Append the file to the FormData
-        formData.append("files", fs.createReadStream(savePath), {
-          filename: "hostelerProof.pdf", // Optional: Provide a filename
-          contentType: "application/pdf", // Optional: Define the content type if necessary
-        });
+        formData.append(
+          "files",
+          fs.createReadStream("dist/src/target/sample(1).pdf"),
+          {
+            filename: "hostelerProof.pdf", // Optional: Provide a filename
+            contentType: "application/pdf", // Optional: Define the content type if necessary
+          }
+        );
+      }
+
+      if (body?.identityProof) {
+        // Decode the base64 string for the file
+        const base64Content = body?.identityProof?.split(",")[1];
+
+        // Remove the data URI prefix
+        const binaryData = Buffer.from(base64Content, "base64");
+
+        // Generate file path for saving the file temporarily
+        const targetFolder = path.join(__dirname, "target");
+        savePath = path.join(targetFolder, "sample(2).pdf");
+        const dir = path.dirname(savePath);
+        if (!fs.existsSync(dir)) {
+          fs.mkdirSync(dir, { recursive: true });
+          console.log(`Directory created: ${dir}`);
+        }
+
+        // Save the decoded file to the file system
+        fs.writeFileSync(savePath, binaryData);
+        console.log(`File saved at: ${savePath}`);
+
+        // Append the file to the FormData
+        formData.append(
+          "files",
+          fs.createReadStream("dist/src/target/sample(2).pdf"),
+          {
+            filename: "identityProof.pdf", // Optional: Provide a filename
+            contentType: "application/pdf", // Optional: Define the content type if necessary
+          }
+        );
+      }
+
+      if (body?.disablityProof) {
+        // Decode the base64 string for the file
+        const base64Content = body?.disablityProof?.split(",")[1];
+
+        // Remove the data URI prefix
+        const binaryData = Buffer.from(base64Content, "base64");
+
+        // Generate file path for saving the file temporarily
+        const targetFolder = path.join(__dirname, "target");
+        savePath = path.join(targetFolder, "sample(3).pdf");
+        const dir = path.dirname(savePath);
+        if (!fs.existsSync(dir)) {
+          fs.mkdirSync(dir, { recursive: true });
+          console.log(`Directory created: ${dir}`);
+        }
+
+        // Save the decoded file to the file system
+        fs.writeFileSync(savePath, binaryData);
+        console.log(`File saved at: ${savePath}`);
+
+        // Append the file to the FormData
+        formData.append(
+          "files",
+          fs.createReadStream("dist/src/target/sample(3).pdf"),
+          {
+            filename: "disablityProof.pdf", // Optional: Provide a filename
+            contentType: "application/pdf", // Optional: Define the content type if necessary
+          }
+        );
       }
 
       // Make the POST request with the FormData
