@@ -3,27 +3,32 @@ import { Injectable, InternalServerErrorException } from "@nestjs/common";
 import { lastValueFrom, map } from "rxjs";
 import { components } from "types/schema";
 import axios from "axios";
-import { SwayamApiResponse } from "types/SwayamApiResponse";
+import fetch from "node-fetch";
+// Import node-fetch in Node.js
+const fetch = require("node-fetch");
+
+import FormData from "form-data";
+
+const path = require("path");
+
 import {
   selectItemMapper,
   flnCatalogGenerator,
   flnCatalogGeneratorV4,
-  scholarshipCatalogGenerator,
-  confirmItemMapper,
   selectItemMapperNew,
   confirmItemMapperNew,
 } from "utils/generator";
-import * as crypto from "crypto";
+
 import { v4 as uuidv4 } from "uuid";
 
 // getting course data
 import * as fs from "fs";
 import { HasuraService } from "./services/hasura/hasura.service";
 import { AuthService } from "./auth/auth.service";
-import { Console } from "console";
 import { S3Service } from "./services/s3/s3.service";
 const file = fs.readFileSync("./course.json", "utf8");
 const courseData = JSON.parse(file);
+import benefitSchema from "../utils/benefit-schema.json";
 
 @Injectable()
 export class AppService {
@@ -35,6 +40,8 @@ export class AppService {
   ) {}
   private base_url = process.env.BASE_URL;
   private strapi_base_url = process.env.PROVIDER_API_URL;
+
+  //beneficiary schema interface
 
   getHello(): string {
     return "kahani-provider service is running!!";
@@ -255,11 +262,8 @@ export class AppService {
     context: components["schemas"]["Context"];
     message: { intent: components["schemas"]["Intent"] };
   }) {
-    console.log("body >> ", JSON.stringify(body));
     const intent: any = body.message.intent;
-    console.log("intent >> ", intent);
 
-    console.log("domain >> ", body.context.domain);
     const gender = intent?.fulfillment?.customer?.person?.gender;
     const name = intent?.item?.descriptor?.name;
     const iTags = intent?.item?.tags || [];
@@ -277,16 +281,19 @@ export class AppService {
 
     try {
       // Replace Hasura call with HTTP request to Strapi
-      const response = await axios.get(
-        `${this.strapi_base_url}/api/scholarships?filters[is_published][$eq]=true&populate[eligibility][populate]=*&populate[provider]=*&populate[financial_information][populate]=*&populate[sponsors]=*`
+      const response = await axios.post(
+        `${this.strapi_base_url}/benefits/v1/_getAll`
       );
 
-      const flnResponse = response.data.data;
+      // const flnResponse = response.data;
+      const flnResponse = response.data;
 
       // Use the mapping function to transform the response
       const mappedResponse = await this.mapFlnResponseToDesiredFormat(
         flnResponse
       );
+
+      console.log("mappedResponse-->>", mappedResponse);
 
       const catalog = flnCatalogGenerator(mappedResponse, name);
       body.context.action = "on_search";
@@ -304,248 +311,93 @@ export class AppService {
     }
   }
 
-  // async getCoursesFromFlnV2New(body: {
-  //   context: components["schemas"]["Context"];
-  //   message: { intent: components["schemas"]["Intent"] };
-  // }) {
-  //   console.log("body >> ", JSON.stringify(body));
-  //   const intent: any = body.message.intent;
-  //   console.log("intent >> ", intent);
-
-  //   console.log("domain >> ", body.context.domain);
-  //   const gender = intent?.fulfillment?.customer?.person?.gender;
-  //   const name = intent?.item?.descriptor?.name;
-  //   const iTags = intent?.item?.tags || [];
-  //   const tags = iTags.map((tag: any) => {
-  //     let obj = {};
-  //     obj[tag.descriptor.code] = tag.list.map((item: any) => {
-  //       return item.value;
-  //     });
-  //     return obj;
-  //   });
-  //   const iLocations = intent?.provider?.locations || [];
-  //   const locations = iLocations.map((location: any) => {
-  //     return location.city.name;
-  //   });
-
-  //   let searchPayload = {
-  //     RequestInfo: {
-  //       apiId: "benefits-services",
-  //       ver: "1.0",
-  //       ts: null,
-  //       action: "_search",
-  //       did: null,
-  //       key: null,
-  //       msgId: "search_with_criteria",
-  //       authToken: "dfcca143-b5a6-4726-b5cd-c2c949cb0f2b",
-  //       correlationId: null,
-  //       userInfo: {
-  //         id: "1",
-  //         userName: null,
-  //         name: null,
-  //         type: null,
-  //         mobileNumber: null,
-  //         emailId: null,
-  //         roles: null,
-  //         uuid: "40dceade-992d-4a8f-8243-19dda76a4171",
-  //       },
-  //     },
-  //     MdmsCriteria: {
-  //       tenantId: "Benefits.Benefit1",
-  //       moduleDetails: [
-  //         {
-  //           moduleName: "Benefits",
-  //           masterDetails: [
-  //             {
-  //               name: "BenefitsTable",
-  //               filter: "",
-  //             },
-  //           ],
-  //         },
-  //       ],
-  //     },
-  //   };
-
-  //   try {
-  //     // Replace Hasura call with HTTP request to Strapi
-  //     // const response = await axios.post(
-  //     //   `http://localhost:8094/mdms-v2/v1/_search`,
-  //     //   searchPayload
-  //     // );
-
-  //     const flnResponse = [
-  //       {
-  //         ResponseInfo: null,
-  //         MdmsRes: {
-  //           Benefits: {
-  //             BenefitsTable: [
-  //               {
-  //                 BenefitID: "BEN-002",
-  //                 auto_renew: true,
-  //                 benefit_name: "Scholarship Benefit",
-  //                 failed_student: false,
-  //                 Application_end: "2024-12-31",
-  //                 eligibility_age: 16,
-  //                 benefit_provider: "Govt. of Punjab",
-  //                 Application_start: "2024-01-01",
-  //                 eligibility_caste: "OBC",
-  //                 eligibility_class: "10th",
-  //                 eligibility_marks: "60%",
-  //                 eligibility_gender: "B",
-  //                 eligibility_income: "2,50,000",
-  //                 benefit_description: "Provides financial aid to students",
-  //                 eligibility_subject: "Science",
-  //                 beneficiary_count_max: 500,
-  //                 eligibility_attendance: "75%",
-  //                 eligibility_child_count: 2,
-  //                 allow_with_other_benefit: true,
-  //                 eligibility_student_type: "dayscholar",
-  //                 eligibility_qualification: "10th Pass",
-  //                 finance_parent_occupation: "Farmer",
-  //               },
-  //             ],
-  //           },
-  //         },
-  //       },
-  //     ];
-
-  //     // Use the mapping function to transform the response
-  //     const mappedResponse = await this.mapFlnResponseToDesiredFormatNew(
-  //       flnResponse
-  //     );
-
-  //     const catalog = flnCatalogGenerator(mappedResponse, name);
-  //     body.context.action = "on_search";
-  //     const courseData: any = {
-  //       context: body.context,
-  //       message: {
-  //         catalog: catalog,
-  //       },
-  //     };
-
-  //     return courseData;
-  //   } catch (error) {
-  //     console.log("err: ", error);
-  //     throw new InternalServerErrorException(error);
-  //   }
-  // }
-
   mapFlnResponseToDesiredFormat(flnResponse: any[]): any[] {
-    return flnResponse.map((item: any) => ({
-      id: item?.id.toString(),
-      documentId: item?.documentId,
-      name: item?.name,
-      description: item?.description || "N/A",
-      long_description: item?.long_description || "N/A",
-      gender: item?.eligibility?.gender || "N/A",
-      min_qualification: item?.eligibility?.min_qualification || "NA",
-      annual_income: item?.eligibility?.annual_income || "NA",
-      disability: item?.eligibility?.disability || "NA",
-      student_type: item?.eligibility?.student_type || "NA",
-      age: item?.eligibility?.age || "NA",
-      eligible_children_limit:
-        item?.eligibility?.eligible_children_limit || "NA",
-      domicile: item?.eligibility?.domicile || "NA",
-      caste:
-        item?.eligibility?.caste?.map((c: any) => c?.caste_name).join(", ") ||
-        "N/A", // Join caste names into a single string
-      class:
-        item?.eligibility?.class?.map((c: any) => c?.class).join(", ") || "N/A", // Join caste names into a single string
-      currency: item?.currency || "INR",
-      createdAt: item?.createdAt,
-      updatedAt: item?.updatedAt,
-      amount: item?.price?.toString() || "1000", // Assuming 'price' represents the amount
-      applicationDeadline: item?.application_deadline,
-      extendedDeadline: item?.extended_deadline || null,
-      providerId: item?.provider?.id || null,
-      providerName: item?.provider?.username || null,
-      providerEmail: item?.provider?.email || "N/A",
-      additionalResources: "required", // Static value as per original example
-      applicationForm: "filled", // Static value as per original example
-      applicationProcessing: "test_abc", // Static value as per original example
-      applicationSubmissionDate: item?.extended_deadline || null,
-      category: "scholarship", // Static value as per original example
-      contactInformation: item?.provider?.email || "N/A",
-      creator: item?.provider?.username || "Unknown",
-      domain: "finance", // Static value as per original example
-      duration: "3 month", // Static value as per original example
-      eligibilityCriteria: item?.eligibility?.min_qualification || "N/A",
-      keywords: "scholarship", // Static value as per original example
-      noOfRecipients: item?.financial_information?.max_bebeficiary || "N/A",
-      eligibility: item?.eligibility,
-      financialAmounts:
-        item?.financial_information?.amt_per_beneficiary?.map((b: any) => ({
-          caste: b?.caste,
-          amount: b?.amount,
-        })) || [], // Map over amt_per_beneficiary for caste and amount
-      sponsors:
-        item?.sponsors?.map((sponsor: any) => ({
-          name: sponsor?.sponsor_name,
-          entityType: sponsor?.entity_type,
-          sharePercent: sponsor?.share_percent,
-        })) || [], // Map over sponsors
-      selectionCriteria: item?.eligibility?.student_type || "N/A",
-      status: "eligible", // Static value as per original example
-      termsAndConditions: "This is terms and condition for this", // Static value
-    }));
+    return flnResponse
+      .filter(
+        (response) => response.schema !== null && response.schema !== undefined
+      ) // Filter out invalid schemas
+      .map((response) => {
+        // Parse the schema JSON if it exists and is a string
+        let en;
+        try {
+          // Replace any escaped backslashes and parse JSON
+          const cleanedSchema = response.schema.replace(/\\/g, "");
+          en = JSON.parse(cleanedSchema).en || {};
+        } catch (error) {
+          console.error("Error parsing schema JSON:", error);
+        }
+
+        // Extract directly from the parsed/en object
+        const basicDetails = en.basicDetails || {};
+        const benefitContent = en.benefitContent || {};
+        const providingEntity = en.providingEntity || {};
+        const sponsoringEntities = en.sponsoringEntities || [];
+        const eligibility = en.eligibility || [];
+        const documents = en.documents || [];
+
+        // Map each response to the desired structure
+        return {
+          basicDetails, // Return the basicDetails object directly
+          benefitContent, // Return the benefitContent object directly
+          providingEntity, // Return the providingEntity object directly
+          sponsoringEntities, // Return the sponsoringEntities array directly
+          eligibility, // Return the eligibility array directly
+          documents, // Return the documents array directly
+          provider_id: response.benefitId, // Extract provider name if available
+        };
+      });
   }
 
-  // mapFlnResponseToDesiredFormatNew(flnResponse: any[]): any[] {
-  //   return flnResponse
-  //     .map((response: any) =>
-  //       response?.MdmsRes?.Benefits?.BenefitsTable?.map((item: any) => ({
-  //         id: item?.BenefitID || "N/A", // Mapping BenefitID to id
-  //         documentId: null, // No equivalent field in the new response structure
-  //         name: item?.benefit_name || "N/A", // benefit_name mapped to name
-  //         description: item?.benefit_description || "N/A", // benefit_description mapped to description
-  //         gender: item?.eligibility_gender || "N/A", // eligibility_gender mapped to gender
-  //         min_qualification: item?.eligibility_qualification || "N/A", // eligibility_qualification mapped to min_qualification
-  //         annual_income: item?.eligibility_income || "N/A", // eligibility_income mapped to annual_income
-  //         disability: "N/A", // No equivalent field in the new structure
-  //         student_type: item?.eligibility_student_type || "N/A", // eligibility_student_type mapped to student_type
-  //         age: item?.eligibility_age || "N/A", // eligibility_age mapped to age
-  //         eligible_children_limit: item?.eligibility_child_count || "N/A", // eligibility_child_count mapped to eligible_children_limit
-  //         domicile: "N/A", // No equivalent field in the new structure
-  //         caste: item?.eligibility_caste || "N/A", // eligibility_caste mapped to caste
-  //         class: item?.eligibility_class || "N/A", // eligibility_class mapped to class
-  //         currency: "INR", // Static value
-  //         createdAt: null, // No equivalent field in the new structure
-  //         updatedAt: null, // No equivalent field in the new structure
-  //         amount: null, // No equivalent field in the new structure
-  //         applicationDeadline: item?.Application_end || "N/A", // Application_end mapped to applicationDeadline
-  //         extendedDeadline: null, // No equivalent field in the new structure
-  //         providerId: null, // No equivalent field in the new structure
-  //         providerName: item?.benefit_provider || "N/A", // benefit_provider mapped to providerName
-  //         providerEmail: "N/A", // No equivalent field in the new structure
-  //         additionalResources: "required", // Static value
-  //         applicationForm: "filled", // Static value
-  //         applicationProcessing: "test_abc", // Static value
-  //         applicationSubmissionDate: item?.Application_end || null, // Using applicationDeadline value here
-  //         category: "scholarship", // Static value
-  //         contactInformation: "N/A", // No equivalent field in the new structure
-  //         creator: item?.benefit_provider || "Unknown", // benefit_provider mapped to creator
-  //         domain: "finance", // Static value
-  //         duration: "3 month", // Static value
-  //         eligibilityCriteria: item?.eligibility_qualification || "N/A", // eligibility_qualification mapped to eligibilityCriteria
-  //         keywords: "scholarship", // Static value
-  //         noOfRecipients: item?.beneficiary_count_max || "N/A", // beneficiary_count_max mapped to noOfRecipients
-  //         eligibility: {
-  //           caste: item?.eligibility_caste || "N/A",
-  //           class: item?.eligibility_class || "N/A",
-  //           income: item?.eligibility_income || "N/A",
-  //           student_type: item?.eligibility_student_type || "N/A",
-  //           gender: item?.eligibility_gender || "N/A",
-  //           qualification: item?.eligibility_qualification || "N/A",
-  //           age: item?.eligibility_age || "N/A",
-  //         }, // eligibility object construction
-  //         financialAmounts: [], // No equivalent data for amt_per_beneficiary in the new structure
-  //         sponsors: [], // No equivalent field in the new structure
-  //         selectionCriteria: item?.eligibility_student_type || "N/A", // eligibility_student_type mapped to selectionCriteria
-  //         status: "eligible", // Static value
-  //         termsAndConditions: "This is terms and condition for this", // Static value
-  //       }))
-  //     )
-  //     .flat(); // Flatten the array since MdmsRes.Benefits.BenefitsTable is nested
+  // mapFlnResponseToDesiredFormat(flnResponse: any[]): any[] {
+  //   return flnResponse.map((response) => {
+  //     // Extract directly from the response
+  //     const en = response.en || {};
+  //     const basicDetails = en.basicDetails || {};
+  //     const benefitContent = en.benefitContent || {};
+  //     const providingEntity = en.providingEntity || {};
+  //     const sponsoringEntities = en.sponsoringEntities || [];
+  //     const eligibility = en.eligibility || [];
+  //     const documents = en.documents || [];
+
+  //     // Map each response to the desired structure
+  //     return {
+  //       basicDetails, // Return the basicDetails object directly
+  //       benefitContent, // Return the benefitContent object directly
+  //       providingEntity, // Return the providingEntity object directly
+  //       sponsoringEntities, // Return the sponsoringEntities array directly
+  //       eligibility, // Return the eligibility array directly
+  //       documents, // Return the documents array directly
+  //       provider_id: response.provider_id, // Extract provider name if available
+  //       // Include benefitId in the output
+  //     };
+  //   });
+  // }
+
+  // mapFlnResponseToDesiredFormat(flnResponse: any): any[] {
+  //   const en = flnResponse.en || {};
+  //   const basicDetails = en.basicDetails || {};
+  //   const benefitContent = en.benefitContent || {};
+  //   const providingEntity = en.providingEntity || {};
+  //   const sponsoringEntities = en.sponsoringEntities || [];
+  //   const eligibility = en.eligibility || [];
+  //   const documents = en.documents || [];
+  //   const applicationProcess = en.applicationProcess || {};
+  //   const applicationForm = en.applicationForm || [];
+
+  //   // Map to array structure expected by flnCatalogGenerator
+  //   return [
+  //     {
+  //       basicDetails,
+  //       benefitContent,
+  //       providingEntity,
+  //       sponsoringEntities,
+  //       eligibility,
+  //       documents,
+  //       applicationProcess,
+  //       applicationForm,
+  //       provider_id: providingEntity.name || "Unknown", // Mocking a provider_id field
+  //     },
+  //   ];
   // }
 
   async handleSelect(selectDto: any) {
@@ -566,21 +418,27 @@ export class AppService {
     let response = [];
     console.log("select api calling", selectDto);
     // fine tune the order here
-    const itemId = parseInt(selectDto.message.order.items[0].id);
+    const itemId = selectDto.message.order.items[0].id;
     // const courseData = (await this.hasuraService.getFlnContentById(itemId)).data
     //   .scholarship_content;
-    const courseData = await axios.get(
-      `${this.strapi_base_url}/api/scholarships?filters[id][$eq]=${itemId}&populate[eligibility][populate]=*&populate[provider]=*&populate[financial_information][populate]=*&populate[sponsors]=*`
+    // const courseData = await axios.get(
+    //   `${this.strapi_base_url}/api/scholarships?filters[id][$eq]=${itemId}&populate[eligibility][populate]=*&populate[provider]=*&populate[financial_information][populate]=*&populate[sponsors]=*`
+    // );
+
+    // Digit api url
+    const courseData = await axios.post(
+      `${this.strapi_base_url}/benefits/v1/_get`,
+      {
+        benefitId: `${itemId}`,
+      }
     );
 
-    console.log("courseData---->>", courseData?.data?.data);
-
-    response.push(courseData?.data?.data?.[0]);
-
-    console.log("response-->>", response);
+    response.push(courseData.data);
 
     // Use the mapping function to transform the response
     const mappedResponse = await this.mapFlnResponseToDesiredFormat(response);
+
+    console.log("mappedResponse-->>", mappedResponse);
 
     selectDto.message.order = selectItemMapperNew(mappedResponse);
     selectDto.context.action = "on_select";
@@ -803,13 +661,18 @@ export class AppService {
   }
 
   async handleInitV2(selectDto: any) {
+    let ubi_provider_url =
+      "https://dev-uba-provider.tekdinext.com/uba-ui/provider.com";
     let response = [];
-    const itemId = parseInt(selectDto.message.order.items[0].id);
-    const courseData = await axios.get(
-      `${this.strapi_base_url}/api/scholarships?filters[id][$eq]=${itemId}&populate[eligibility][populate]=*&populate[provider]=*&populate[financial_information][populate]=*&populate[sponsors]=*`
+    const itemId = selectDto.message.order.items[0].id;
+    const courseData = await axios.post(
+      `${this.strapi_base_url}/benefits/v1/_get`,
+      {
+        benefitId: `${itemId}`,
+      }
     );
 
-    response.push(courseData?.data?.data?.[0]);
+    response.push(courseData.data);
 
     // Use the mapping function to transform the response
     const mappedResponse = await this.mapFlnResponseToDesiredFormat(response);
@@ -827,14 +690,14 @@ export class AppService {
         headings: ["Personal Details"],
       },
       form: {
-        url: `${this.base_url}/application/${itemId}/${selectDto.context.transaction_id}`,
+        url: `${ubi_provider_url}/${itemId}/apply`,
         mime_type: "text/html",
         resubmit: false,
       },
       required: true,
     };
     const { id, descriptor, categories, locations, items, rateable }: any =
-      selectItemMapper(mappedResponse);
+      selectItemMapperNew(mappedResponse);
     items[0].xinput = xinput;
     selectDto.message.order = {
       ...selectDto.message.order,
@@ -916,17 +779,20 @@ export class AppService {
       confirmDto.message.order.fulfillments[0].customer;
     const submission_id =
       confirmDto.message.order.items[0].xinput.form.submission_id;
-    const itemId = parseInt(confirmDto?.message?.order?.items[0]?.id);
+    const itemId = confirmDto?.message?.order?.items[0]?.id;
 
-    const courseData = await axios.get(
-      `${this.strapi_base_url}/api/scholarships?filters[id][$eq]=${itemId}&populate[eligibility][populate]=*&populate[provider]=*&populate[financial_information][populate]=*&populate[sponsors]=*`
+    const courseData = await axios.post(
+      `${this.strapi_base_url}/benefits/v1/_get`,
+      {
+        benefitId: `${itemId}`,
+      }
     );
 
-    console.log("courseData-->>", courseData?.data?.data?.[0]);
-    response.push(courseData?.data?.data?.[0]);
+    response.push(courseData.data);
 
     // Use the mapping function to transform the response
     const mappedResponse = await this.mapFlnResponseToDesiredFormat(response);
+    // Use the mapping function to transform the response
 
     console.log("mappedResonse-->>", mappedResponse);
 
@@ -935,61 +801,61 @@ export class AppService {
 
     // get customer details based on submission id and content id
 
-    const customerData = await axios.get(
-      `${this.strapi_base_url}/api/applications?filters[$and][0][submission_id][$eq]=${submission_id}`
-    );
+    // const customerData = await axios.get(
+    //   `${this.strapi_base_url}/api/applications?filters[$and][0][submission_id][$eq]=${submission_id}`
+    // );
 
-    console.log("customerData-->>", customerData?.data?.data);
-    // get document id from customerData
+    // console.log("customerData-->>", customerData?.data?.data);
+    // // get document id from customerData
 
-    let document_id = customerData?.data?.data?.[0]?.documentId;
+    // let document_id = customerData?.data?.data?.[0]?.documentId;
 
-    console.log("orderid--->>", order_id);
+    // console.log("orderid--->>", order_id);
 
-    //update customer details payload
+    // //update customer details payload
 
-    const updateCustomerPayload = {
-      data: {
-        first_name: customerData?.data?.data?.[0]?.first_name || "NA",
-        last_name: customerData?.data?.data?.[0]?.last_name || "NA",
-        father_name: customerData?.data?.data?.[0]?.father_name || "NA",
-        samagra_id: customerData?.data?.data?.[0]?.samagra_id || "NA",
-        class: customerData?.data?.data?.[0]?.class || 0,
-        resident_type: customerData?.data?.data?.[0]?.resident_type || "NA",
-        aadhaar: customerData?.data?.data?.[0]?.aadhaar || "NA",
-        marks_previous_class:
-          customerData?.data?.data?.[0]?.marks_previous_class || 0,
-        caste: customerData?.data?.data?.[0]?.caste || "NA",
-        application_status:
-          customerData?.data?.data?.[0]?.application_status || "NA",
-        current_school_name:
-          customerData?.data?.data?.[0]?.current_school_name || "NA",
-        current_school_address:
-          customerData?.data?.data?.[0]?.current_school_address || "NA",
-        application_date: customerData?.data?.data?.[0]?.application_date,
-        phone: customerData?.data?.data?.[0]?.phone || "NA",
-        gender: customerData?.data?.data?.[0]?.gender || "NA",
-        order_id: order_id || 0,
-        transaction_id: customerData?.data?.data?.[0]?.transaction_id || "NA",
-        submission_id: customerData?.data?.data?.[0]?.submission_id || "NA",
-        content_id: customerData?.data?.data?.[0]?.content_id || "NA",
-      },
-    };
+    // const updateCustomerPayload = {
+    //   data: {
+    //     first_name: customerData?.data?.data?.[0]?.first_name || "NA",
+    //     last_name: customerData?.data?.data?.[0]?.last_name || "NA",
+    //     father_name: customerData?.data?.data?.[0]?.father_name || "NA",
+    //     samagra_id: customerData?.data?.data?.[0]?.samagra_id || "NA",
+    //     class: customerData?.data?.data?.[0]?.class || 0,
+    //     resident_type: customerData?.data?.data?.[0]?.resident_type || "NA",
+    //     aadhaar: customerData?.data?.data?.[0]?.aadhaar || "NA",
+    //     marks_previous_class:
+    //       customerData?.data?.data?.[0]?.marks_previous_class || 0,
+    //     caste: customerData?.data?.data?.[0]?.caste || "NA",
+    //     application_status:
+    //       customerData?.data?.data?.[0]?.application_status || "NA",
+    //     current_school_name:
+    //       customerData?.data?.data?.[0]?.current_school_name || "NA",
+    //     current_school_address:
+    //       customerData?.data?.data?.[0]?.current_school_address || "NA",
+    //     application_date: customerData?.data?.data?.[0]?.application_date,
+    //     phone: customerData?.data?.data?.[0]?.phone || "NA",
+    //     gender: customerData?.data?.data?.[0]?.gender || "NA",
+    //     order_id: order_id || 0,
+    //     transaction_id: customerData?.data?.data?.[0]?.transaction_id || "NA",
+    //     submission_id: customerData?.data?.data?.[0]?.submission_id || "NA",
+    //     content_id: customerData?.data?.data?.[0]?.content_id || "NA",
+    //   },
+    // };
 
-    console.log("updateCustomerPayload--->>", updateCustomerPayload);
+    // console.log("updateCustomerPayload--->>", updateCustomerPayload);
 
-    console.log(
-      "urlll--->>>",
+    // console.log(
+    //   "urlll--->>>",
 
-      `${this.strapi_base_url}/api/applications/${document_id}`,
-      updateCustomerPayload
-    );
+    //   `${this.strapi_base_url}/api/applications/${document_id}`,
+    //   updateCustomerPayload
+    // );
 
-    // Axios POST call
-    const orderDetails = await axios.put(
-      `${this.strapi_base_url}/api/applications/${document_id}`,
-      updateCustomerPayload
-    );
+    // // Axios POST call
+    // const orderDetails = await axios.put(
+    //   `${this.strapi_base_url}/api/applications/${document_id}`,
+    //   updateCustomerPayload
+    // );
 
     let order = confirmItemMapperNew(mappedResponse);
 
@@ -1043,54 +909,116 @@ export class AppService {
     }
   }
 
-  async handleInitSubmitV2(id: any, transaction_id: string, body: any) {
+  async handleInitSubmitV2(body: any) {
     try {
       const submission_id = uuidv4();
-      const date = new Date();
-      const formattedDate = date.toISOString().split("T")[0];
 
-      // Prepare the payload for the POST request
       const payload = {
-        data: {
-          first_name: body?.first_name || "NA",
-          last_name: body?.last_name || "NA",
-          father_name: body?.father_name || "NA",
-          samagra_id: body?.samagra_id || "NA",
-          class: parseInt(body?.class) || 9,
-          resident_type: body?.resident_type || "NA",
-          aadhaar: body?.aadhaar || "NA",
-          marks_previous_class: body?.marks_previous_class || 0,
-          caste: body?.caste || "NA",
-          current_school_name: body?.current_school_name || "NA",
-          current_school_address: body?.current_school_address || "NA",
-          application_date: formattedDate,
-          phone: body?.phone || "NA",
-          gender: body?.gender || "NA",
-          order_id: body?.order_id || "NA",
-          transaction_id: transaction_id || "NA",
-          submission_id: submission_id || "NA",
-          content_id: parseInt(id) || 0, // Assuming content_id is a number
+        RequestInfo: {
+          apiId: "application-services",
+          ver: "1.0.0",
+          ts: Date.now(),
+          action: "add",
+          did: "ASdassad",
+          key: "Asd",
+          msgId: "search with from and to values",
+          authToken: "token",
+          userInfo: {
+            id: 24226,
+            uuid: uuidv4(),
+            userName: `user${Math.floor(Math.random() * 10000)}`,
+            name: `${body?.firstName} ${body?.lastName}` || "NA",
+            mobileNumber: body?.phone || "NA",
+            emailId: body?.email || "NA",
+            type: "EMPLOYEE",
+            active: true,
+            tenantId: "pb.amritsar",
+          },
+        },
+        Application: {
+          id: null,
+          tenantId: "pb",
+          applicationNumber: null,
+          individualId: "IndUs-123",
+          programCode: "PROG-001",
+          status: null,
+          wfStatus: null,
+          auditDetails: null,
+          additionalDetails: {},
+          applicant: {
+            id: Math.random().toString(36).substring(2, 12),
+            studentName: `${body?.firstName} ${body?.lastName}` || "NA",
+            fatherName: body?.fatherName || "NA",
+            caste: body?.caste || "NA",
+            income: body?.annualIncome || "NA",
+            gender: body?.gender,
+            age: body?.age || 10,
+            disability: body?.disability || false,
+          },
+          schema:
+            '[{"name":"id","value":"b642cec5-5c14-4c6a-b1cd-d017b5fb4cad"},{"name":"applicationNumber","value":"PB-BTR-2024-11-17-000148"},{"name":"individualId","value":"IndUs-123"},{"name":"programCode","value":"PROG-001"},{"name":"status","value":"ARCHIVED"},{"name":"applicantId","value":"applicant-132"},{"name":"studentName","value":"John Doe"},{"name":"fatherName","value":"Richard Doe"},{"name":"samagraId","value":"samagra-001"},{"name":"currentSchoolName","value":"ABC High School"},{"name":"currentSchoolAddress","value":"123 Main St, City, State"},{"name":"currentSchoolAddressDistrict","value":"District 1"},{"name":"currentClass","value":"10"},{"name":"previousYearMarks","value":"85"},{"name":"studentType","value":"Regular"},{"name":"aadharLast4Digits","value":"1234"},{"name":"caste","value":"General"},{"name":"income","value":"50000"},{"name":"gender","value":"Male"},{"name":"age","value":"15"},{"name":"disability","value":"false"}]',
         },
       };
 
-      console.log("payload-->>", payload);
+      // Create the FormData object
+      const formData = new FormData();
 
-      // Axios POST call
-      const response = await axios.post(
-        `${this.strapi_base_url}/api/applications`,
-        payload
+      // Append the JSON payload for the 'application' field
+      formData.append("application", JSON.stringify(payload));
+
+      let savePath = null;
+
+      // If there's a hostelerProof file, handle the file data
+      if (body?.hostelerProof) {
+        // Decode the base64 string for the file
+        const base64Content = body?.hostelerProof.split(",")[1]; // Remove the data URI prefix
+        const binaryData = Buffer.from(base64Content, "base64");
+
+        // Generate file path for saving the file temporarily
+        const targetFolder = path.join(__dirname, "target");
+        savePath = path.join(targetFolder, "hostelerProof.pdf");
+        const dir = path.dirname(savePath);
+        if (!fs.existsSync(dir)) {
+          fs.mkdirSync(dir, { recursive: true });
+          console.log(`Directory created: ${dir}`);
+        }
+
+        // Save the decoded file to the file system
+        fs.writeFileSync(savePath, binaryData);
+        console.log(`File saved at: ${savePath}`);
+
+        // Append the file to the FormData
+        formData.append("files", fs.createReadStream(savePath), {
+          filename: "hostelerProof.pdf", // Optional: Provide a filename
+          contentType: "application/pdf", // Optional: Define the content type if necessary
+        });
+      }
+
+      // Make the POST request with the FormData
+      const response = await fetch(
+        "https://devpiramal.tekdinext.com/application/v1/_create",
+        {
+          method: "POST",
+          body: formData,
+          headers: {
+            ...formData.getHeaders(), // This will include Content-Type with the correct boundary
+          },
+        }
       );
 
-      // Check for errors
-      if (response.data.errors) throw response.data.errors;
+      console.log("response--->>", response);
 
-      console.log("form data submitted >> ", response.data);
+      // Clean up the temporary file
+      if (savePath) {
+        fs.unlinkSync(savePath); // Remove the temporary file
+        console.log(`File deleted: ${savePath}`);
+      }
 
-      // Return the submission_id
-      return response.data.data.submission_id;
+      // Handle the response
+
+      return submission_id;
     } catch (error) {
-      console.error("Error submitting form: ", error);
-      return error;
+      console.error("Error during submission:", error);
     }
   }
 

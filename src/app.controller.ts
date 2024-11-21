@@ -7,10 +7,13 @@ import {
   Body,
   Render,
   Param,
+  UseInterceptors,
+  UploadedFile,
 } from "@nestjs/common";
 import { AuthGuard } from "@nestjs/passport";
 import { AppService } from "./app.service";
 import { AuthService } from "./auth/auth.service";
+import { FileInterceptor } from "@nestjs/platform-express";
 
 @Controller("")
 export class AppController {
@@ -65,19 +68,35 @@ export class AppController {
     return { item_id, transaction_id };
   }
 
-  @Post("application-init/:item_id/:transaction_id")
-  submitInitFormV2(
-    @Body() body: any,
-    @Param("item_id") item_id: any,
-    @Param("transaction_id") transaction_id: string
-  ) {
-    console.log(
-      "xinput application submit for item  >> ",
-      item_id,
-      "transaction_id >> ",
-      transaction_id
-    );
-    return this.appService.handleInitSubmitV2(item_id, transaction_id, body);
+  // @Post("application-init/:item_id/:transaction_id")
+  // submitInitFormV2(
+  //   @Body() body: any,
+  //   @Param("item_id") item_id: any,
+  //   @Param("transaction_id") transaction_id: string
+  // ) {
+  //   console.log(
+  //     "xinput application submit for item  >> ",
+  //     item_id,
+  //     "transaction_id >> ",
+  //     transaction_id
+  //   );
+  //   return this.appService.handleInitSubmitV2(item_id, transaction_id, body);
+  // }
+
+  // @Post("application-init/:item_id/:transaction_id")
+  // @UseInterceptors(FileInterceptor("files")) // 'files' matches the form-data field name
+  // submitInitFormV2(
+  //   @Body() body: any,
+  //   @UploadedFile() file: Express.Multer.File
+  // ) {
+  //   // Pass the file to the service
+  //   return this.appService.handleInitSubmitV2(body, file);
+  //}
+
+  @Post("application-init")
+  submitInitFormV2(@Body() body: any) {
+    // Pass only the body to the service
+    return this.appService.handleInitSubmitV2(body);
   }
 
   @Post("dsep/confirm")

@@ -63,6 +63,7 @@ export const flnCatalogGeneratorV3 = (apiData: any, query: string) => {
               end: "2023-10-12T18:30:00.000000Z",
             },
           },
+
           rating: Math.floor(Math.random() * 6).toString(), // map it to an actual response
           tags: [
             {
@@ -439,11 +440,11 @@ export const selectItemMapper = (providerArr: any) => {
   const id = providerArr[0].provider_id;
 
   const descriptor: components["schemas"]["Descriptor"] = {
-    name: providerArr[0].providerName,
-    short_desc: providerArr[0].description,
+    name: providerArr[0].providingEntity?.name,
+    short_desc: providerArr[0].benefitContent?.shortDescription,
     images: [
       {
-        url: "https://xyz.com/logo",
+        url: "https://fastly.picsum.photos/id/24/200/200.jpg?hmac=Tw5b43UPAehS5e4JyB0qMQysvfLBmu_GZ_iafWou3m8",
       },
     ],
   };
@@ -484,166 +485,199 @@ export const selectItemMapper = (providerArr: any) => {
 
   const items: components["schemas"]["Item"][] = providerArr.map(
     (course: any) => {
-      const tags = [
-        {
+      const eligibilityTags = course?.eligibility?.map(
+        (eligibilityItem: any) => {
+          const conditionValues = Array.isArray(
+            eligibilityItem.criteria.conditionValues
+          )
+            ? eligibilityItem.criteria.conditionValues.join(", ")
+            : eligibilityItem.criteria.conditionValues; // if not an array, use the value as it is
+
+          const tag = {
+            display: true,
+            descriptor: {
+              code: `${eligibilityItem.type}-eligibility`,
+              name: `${
+                eligibilityItem.type.charAt(0).toUpperCase() +
+                eligibilityItem.type.slice(1)
+              } eligibility`,
+              short_desc: eligibilityItem.description || "",
+            },
+            list: [
+              {
+                descriptor: {
+                  code: `${eligibilityItem.criteria.name}-eligibility`,
+                  name: `${
+                    eligibilityItem.criteria.name.charAt(0).toUpperCase() +
+                    eligibilityItem.criteria.name.slice(1)
+                  } eligibility`,
+                  short_desc: eligibilityItem.description || "",
+                },
+                value: conditionValues,
+                display: true,
+              },
+            ],
+          };
+          return tag;
+        }
+      );
+
+      const additionalBenefitTag = {
+        display: true,
+        descriptor: {
+          code: "additional-benefit-details",
+          name: "Additional Benefit Details",
+          short_desc:
+            "Information regarding additional benefits like scholarships, financial assistance, etc.",
+        },
+        list: [
+          {
+            descriptor: {
+              code: "category",
+              name: "Category",
+              short_desc: "The category of the benefit",
+            },
+            value: providerArr?.[0]?.basicDetails?.category,
+            display: true,
+          },
+          {
+            descriptor: {
+              code: "subCategory",
+              name: "SubCategory",
+              short_desc: "The subcategory of the benefit",
+            },
+            value: providerArr?.[0]?.basicDetails?.subCategory,
+            display: true,
+          },
+          {
+            descriptor: {
+              code: "tags",
+              name: "Tags",
+              short_desc: "Keywords related to the scholarship",
+            },
+            value: providerArr?.[0]?.basicDetails?.tags?.join(","),
+            display: true,
+          },
+        ],
+      };
+
+      // Include the additional benefit tag in the eligibilityTags array
+      eligibilityTags.push(additionalBenefitTag);
+
+      const sponsoringEntitiesTags = providerArr?.[0]?.sponsoringEntities?.map(
+        (entity: any, index: number) => ({
           display: true,
           descriptor: {
-            code: "background-eligibility",
-            name: "Background eligibility",
+            code: `sponsoring-entity`,
+            name: `Sponsoring Entity`,
+            short_desc: `Details of the sponsoring entity ${index + 1}`,
           },
           list: [
             {
               descriptor: {
-                code: "social-eligibility",
-                name: "Social eligibility",
-                short_desc:
-                  "Social eligibility of the candidate to be eligible",
+                code: "type",
+                name: "Type",
+                short_desc: "The type of the sponsoring entity",
               },
-              value: course?.caste,
+              value: entity?.type,
               display: true,
             },
             {
               descriptor: {
-                code: "gender-eligibility",
-                name: "Gender eligibility",
-                short_desc: "Gender of the candidate to be eligible",
+                code: "name",
+                name: "Name",
+                short_desc: "The name of the sponsoring entity",
               },
-              value: course?.gender,
+              value: entity?.name,
               display: true,
             },
             {
               descriptor: {
-                code: "ann-hh-inc",
-                name: "Maximum Annual Household Income",
-                short_desc:
-                  "Maximum Family income per annum above which will render the applicant ineligible",
+                code: "address",
+                name: "Address",
+                short_desc: "The address of the sponsoring entity",
               },
-              value: course?.annual_income,
+              value: "Some Street New-Delhi Delhi 110001",
+              display: true,
+            },
+            {
+              descriptor: {
+                code: "department",
+                name: "Department",
+                short_desc: "The department of the sponsoring entity",
+              },
+              value: "Ministry of Tribal Welfare Department",
+              display: true,
+            },
+            {
+              descriptor: {
+                code: "contact-info",
+                name: "Contact Information",
+                short_desc: "Contact details of the sponsoring entity",
+              },
+              value: `Phone: 1234567890, Email: contact@mtw.gov.in`,
+              display: true,
+            },
+            {
+              descriptor: {
+                code: "sponsor-share",
+                name: "Sponsor Share",
+                short_desc: "The sponsor's share percentage",
+              },
+              value: entity?.sponsorShare,
               display: true,
             },
           ],
-        },
-        {
-          display: true,
-          descriptor: {
-            code: "academic-eligibility",
-            name: "Academic Eligibility",
-          },
-          list: [
-            {
-              descriptor: {
-                code: "course-name",
-                name: "Name of the course",
-              },
-              value: course.class,
-              display: true,
-            },
-            {
-              descriptor: {
-                code: "min-percentage",
-                name: "Minimum percentage of marks to be obtained in the course for eligibility",
-              },
-              value: "60",
-              display: true,
-            },
-          ],
-        },
-        {
+        })
+      );
+
+      // Add the sponsoring entities tags to the eligibility tags
+      if (sponsoringEntitiesTags) {
+        eligibilityTags.push(...sponsoringEntitiesTags);
+      }
+
+      const mapDocumentsToTags = (documents: any[]) => {
+        if (!documents || !Array.isArray(documents)) return []; // Ensure it always returns an array
+
+        return {
           display: true,
           descriptor: {
             code: "required-docs",
-            name: "Required documents",
+            name: "Required Documents",
           },
-          list: [
-            {
-              descriptor: {
-                code: "mandatory-doc",
-                name: "Mandatory document",
-              },
-              value: "Applicant Photo",
-              display: true,
+          list: documents.map((doc: any) => ({
+            descriptor: {
+              code: doc.documentType,
+              name: doc.isRequired ? "Mandatory Document" : "Optional Document",
             },
-            {
-              descriptor: {
-                code: "mandatory-doc",
-                name: "Mandatory document",
-              },
-              value: "Proof of Identity",
-              display: true,
-            },
-            {
-              descriptor: {
-                code: "mandatory-doc",
-                name: "Mandatory document",
-              },
-              value: "Proof of Address",
-              display: true,
-            },
-            {
-              descriptor: {
-                code: "optional-doc",
-                name: "Optional document",
-              },
-              value: "PAN No/Domicile certificate",
-              display: true,
-            },
-          ],
-        },
-        {
-          display: true,
-          descriptor: {
-            code: "additional-info",
-            name: "Additional info",
-          },
-          list: [
-            {
-              descriptor: {
-                code: "faq-url",
-                name: "FAQ URL",
-                short_desc: "Link to FAQ",
-              },
-              value: "https://www.vs.co.in/vs/resources/68/faq/1015_27.html",
-              display: true,
-            },
-            {
-              descriptor: {
-                code: "tnc-url",
-                name: "T&C URL",
-                short_desc: "Link to terms & conditions",
-              },
-              value: "https://www.vs.co.in/vs/resources/68/tnc/1015_27.html",
-              display: true,
-            },
-          ],
-        },
-      ];
+            value: doc.allowedProofs.join(", "), // Join the allowed proofs into a comma-separated string
+            display: true,
+          })),
+        };
+      };
+
+      eligibilityTags.push(mapDocumentsToTags(providerArr?.[0]?.documents));
       const providerItem = {
-        id: course.id,
+        id: course.provider_id,
         descriptor: {
-          name: course.name || "",
-          long_desc: course.long_description || "",
+          name: course?.basicDetails?.title || "NA",
+          long_desc: course?.benefitContent?.longDescription || "NA",
         },
         price: {
-          currency: course?.currency,
-          value: course.amount || "",
+          currency: course?.benefitContent?.currency || "$",
+          value: course?.benefitContent?.amount || "5000",
         },
         time: {
           range: {
-            start: "2023-01-03T13:23:01+00:00",
-            end: course?.applicationDeadline + "T00:00:00+00:00",
+            start: "2024-10-31T00:00:00+00:00",
+            end: "2024-12-31T00:00:00+00:00",
           },
         },
         rateable: false,
-        tags: tags,
-        category_ids: categories.map((category) => {
-          return category.id;
-        }),
-        location_ids: locations.map((location) => {
-          return location.id;
-        }),
-        fulfillment_ids: fulfillments.map((fulfillment) => {
-          return fulfillment.id;
-        }),
+        tags: eligibilityTags,
+        category_ids: categories.map((category) => category.id),
+        location_ids: locations.map((location) => location.id),
+        fulfillment_ids: fulfillments.map((fulfillment) => fulfillment.id),
       };
       return providerItem;
     }
@@ -662,17 +696,461 @@ export const selectItemMapper = (providerArr: any) => {
   return providerObj;
 };
 
+// export const selectItemMapper = (providerArr: any) => {
+//   console.log("providerArr009-->>", JSON.stringify(providerArr));
+//   const id = providerArr[0].provider_id;
+
+//   const descriptor: components["schemas"]["Descriptor"] = {
+//     name: providerArr[0].providerName,
+//     short_desc: providerArr[0].description,
+//     images: [
+//       {
+//         url: "https://xyz.com/logo",
+//       },
+//     ],
+//   };
+
+//   const categories: components["schemas"]["Category"][] = providerArr.map(
+//     (course: any) => {
+//       const pCategory = {
+//         id: course?.category ? course.category : "",
+//         descriptor: {
+//           code: course?.category ? course.category : "",
+//           name: course?.category ? course.category : "",
+//         },
+//       };
+//       return pCategory;
+//     }
+//   );
+
+//   const fulfillments: components["schemas"]["Fulfillment"][] = [
+//     {
+//       id: "DSEP_FUL_63587501",
+//       tracking: false,
+//     },
+//   ];
+
+//   const locations: components["schemas"]["Location"][] = [
+//     {
+//       id: "L1",
+//       city: {
+//         name: "Pune",
+//         code: "std:020",
+//       },
+//       state: {
+//         name: "Maharastra",
+//         code: "MH",
+//       },
+//     },
+//   ];
+
+//   const items: components["schemas"]["Item"][] = providerArr.map(
+//     (course: any) => {
+//       const tags = [
+//         {
+//           display: true,
+//           descriptor: {
+//             code: "background-eligibility",
+//             name: "Background eligibility",
+//           },
+//           list: [
+//             {
+//               descriptor: {
+//                 code: "social-eligibility",
+//                 name: "Social eligibility",
+//                 short_desc:
+//                   "Social eligibility of the candidate to be eligible",
+//               },
+//               value: course?.caste,
+//               display: true,
+//             },
+//             {
+//               descriptor: {
+//                 code: "geography-eligibility",
+//                 name: "Geography eligibility",
+//                 short_desc:
+//                   "Geography eligibility of the candidate to be eligible",
+//               },
+//               value: "maharashtra",
+//               display: true,
+//             },
+//             {
+//               descriptor: {
+//                 code: "gender-eligibility",
+//                 name: "Gender eligibility",
+//                 short_desc: "Gender of the candidate to be eligible",
+//               },
+//               value: course?.gender,
+//               display: true,
+//             },
+//             {
+//               descriptor: {
+//                 code: "ann-hh-inc",
+//                 name: "Maximum Annual Household Income",
+//                 short_desc:
+//                   "Maximum Family income per annum above which will render the applicant ineligible",
+//               },
+//               value: course?.annual_income,
+//               display: true,
+//             },
+//           ],
+//         },
+//         {
+//           display: true,
+//           descriptor: {
+//             code: "geography-eligibility",
+//             name: "Geography eligibility",
+//           },
+//           list: [
+//             {
+//               descriptor: {
+//                 code: "state-eligibility",
+//                 name: "State eligibility",
+//                 short_desc: "State eligibility of the candidate to be eligible",
+//               },
+//               value: "maharashtra",
+//               display: true,
+//             },
+
+//             {
+//               descriptor: {
+//                 code: "city-eligibility",
+//                 name: "City eligibility",
+//                 short_desc: "City of the candidate to be eligible",
+//               },
+//               value: "pune",
+//               display: true,
+//             },
+//           ],
+//         },
+//         {
+//           display: true,
+//           descriptor: {
+//             code: "academic-eligibility",
+//             name: "Academic Eligibility",
+//           },
+//           list: [
+//             {
+//               descriptor: {
+//                 code: "course-name",
+//                 name: "Name of the course",
+//               },
+//               value: course.class,
+//               display: true,
+//             },
+//             {
+//               descriptor: {
+//                 code: "min-percentage",
+//                 name: "Minimum percentage of marks to be obtained in the course for eligibility",
+//               },
+//               value: "60",
+//               display: true,
+//             },
+//           ],
+//         },
+//         {
+//           display: true,
+//           descriptor: {
+//             code: "required-docs",
+//             name: "Required documents",
+//           },
+//           list: [
+//             {
+//               descriptor: {
+//                 code: "mandatory-doc",
+//                 name: "Mandatory document",
+//               },
+//               value: "Applicant Photo",
+//               display: true,
+//             },
+//             {
+//               descriptor: {
+//                 code: "mandatory-doc",
+//                 name: "Mandatory document",
+//               },
+//               value: "Proof of Identity",
+//               display: true,
+//             },
+//             {
+//               descriptor: {
+//                 code: "mandatory-doc",
+//                 name: "Mandatory document",
+//               },
+//               value: "Proof of Address",
+//               display: true,
+//             },
+//             {
+//               descriptor: {
+//                 code: "optional-doc",
+//                 name: "Optional document",
+//               },
+//               value: "PAN No/Domicile certificate",
+//               display: true,
+//             },
+//           ],
+//         },
+//         {
+//           display: true,
+//           descriptor: {
+//             code: "additional-info",
+//             name: "Additional info",
+//           },
+//           list: [
+//             {
+//               descriptor: {
+//                 code: "faq-url",
+//                 name: "FAQ URL",
+//                 short_desc: "Link to FAQ",
+//               },
+//               value: "https://www.vs.co.in/vs/resources/68/faq/1015_27.html",
+//               display: true,
+//             },
+//             {
+//               descriptor: {
+//                 code: "tnc-url",
+//                 name: "T&C URL",
+//                 short_desc: "Link to terms & conditions",
+//               },
+//               value: "https://www.vs.co.in/vs/resources/68/tnc/1015_27.html",
+//               display: true,
+//             },
+//           ],
+//         },
+//       ];
+//       const providerItem = {
+//         id: course.id,
+//         descriptor: {
+//           name: course.name || "",
+//           long_desc: course.long_description || "",
+//         },
+//         price: {
+//           currency: course?.currency,
+//           value: course.amount || "",
+//         },
+//         time: {
+//           range: {
+//             start: "2023-01-03T13:23:01+00:00",
+//             end: course?.applicationDeadline
+//               ? course.applicationDeadline
+//               : "2023-01-03T13:23:01+00:00",
+//           },
+//         },
+
+//         rateable: false,
+//         tags: tags,
+//         category_ids: categories.map((category) => {
+//           return category.id;
+//         }),
+//         location_ids: locations.map((location) => {
+//           return location.id;
+//         }),
+//         fulfillment_ids: fulfillments.map((fulfillment) => {
+//           return fulfillment.id;
+//         }),
+//       };
+//       return providerItem;
+//     }
+//   );
+
+//   const providerObj: components["schemas"]["Provider"] = {
+//     id,
+//     descriptor,
+//     categories,
+//     fulfillments,
+//     locations,
+//     items,
+//     rateable: false,
+//   };
+
+//   return providerObj;
+// };
+
 export const selectItemMapperNew = (input: any) => {
-  console.log("input-->>", JSON.stringify(input));
+  console.log("input-->>123", JSON.stringify(input));
+
+  const mapEligibilityToTags = (eligibilities: any[]) => {
+    if (!eligibilities || !Array.isArray(eligibilities)) {
+      // Ensure function returns an empty array for invalid input
+      return [];
+    }
+
+    const eligibilityTags = eligibilities.map((eligibilityItem) => {
+      const conditionValues = Array.isArray(
+        eligibilityItem.criteria.conditionValues
+      )
+        ? eligibilityItem.criteria.conditionValues.join(", ")
+        : eligibilityItem.criteria.conditionValues;
+
+      return {
+        display: true,
+        descriptor: {
+          code: `${eligibilityItem.type}-eligibility`,
+          name: `${eligibilityItem.type
+            .charAt(0)
+            .toUpperCase()}${eligibilityItem.type.slice(1)} eligibility`,
+          short_desc: eligibilityItem.description || "",
+        },
+        list: [
+          {
+            descriptor: {
+              code: `${eligibilityItem.criteria.name}-eligibility`,
+              name: `${eligibilityItem.criteria.name
+                .charAt(0)
+                .toUpperCase()}${eligibilityItem.criteria.name.slice(
+                1
+              )} eligibility`,
+              short_desc: eligibilityItem.description || "",
+            },
+            value: conditionValues,
+            display: true,
+          },
+        ],
+      };
+    });
+
+    // Add any additional tags (if required)
+    // For now, we assume additionalInfo contains required extra data
+
+    return eligibilityTags;
+  };
+
+  const sponsoringEntitiesTags = input?.[0]?.sponsoringEntities?.map(
+    (entity: any, index: number) => ({
+      display: true,
+      descriptor: {
+        code: `sponsoring-entity`,
+        name: `Sponsoring Entity`,
+        short_desc: `Details of the sponsoring entity ${index + 1}`,
+      },
+      list: [
+        {
+          descriptor: {
+            code: "type",
+            name: "Type",
+            short_desc: "The type of the sponsoring entity",
+          },
+          value: entity?.type,
+          display: true,
+        },
+        {
+          descriptor: {
+            code: "name",
+            name: "Name",
+            short_desc: "The name of the sponsoring entity",
+          },
+          value: entity?.name,
+          display: true,
+        },
+        {
+          descriptor: {
+            code: "address",
+            name: "Address",
+            short_desc: "The address of the sponsoring entity",
+          },
+          value: "Some Street New-Delhi Delhi 110001",
+          display: true,
+        },
+        {
+          descriptor: {
+            code: "department",
+            name: "Department",
+            short_desc: "The department of the sponsoring entity",
+          },
+          value: "Ministry of Tribal Welfare Department",
+          display: true,
+        },
+        {
+          descriptor: {
+            code: "contact-info",
+            name: "Contact Information",
+            short_desc: "Contact details of the sponsoring entity",
+          },
+          value: `Phone: 1234567890, Email: contact@mtw.gov.in`,
+          display: true,
+        },
+        {
+          descriptor: {
+            code: "sponsor-share",
+            name: "Sponsor Share",
+            short_desc: "The sponsor's share percentage",
+          },
+          value: entity?.sponsorShare,
+          display: true,
+        },
+      ],
+    })
+  );
+
+  const mapDocumentsToTags = (documents: any[]) => {
+    if (!documents || !Array.isArray(documents)) return []; // Ensure it always returns an array
+
+    return [
+      {
+        display: true,
+        descriptor: {
+          code: "required-docs",
+          name: "Required Documents",
+        },
+        list: documents.map((doc: any) => ({
+          descriptor: {
+            code: doc.documentType,
+            name: doc.isRequired ? "Mandatory Document" : "Optional Document",
+          },
+          value: doc.allowedProofs.join(", "),
+          display: true,
+        })),
+      },
+    ];
+  };
+
+  const additionalBenefitTag = {
+    display: true,
+    descriptor: {
+      code: "additional-benefit-details",
+      name: "Additional Benefit Details",
+      short_desc:
+        "Information regarding additional benefits like scholarships, financial assistance, etc.",
+    },
+    list: [
+      {
+        descriptor: {
+          code: "category",
+          name: "Category",
+          short_desc: "The category of the benefit",
+        },
+        value: input?.[0]?.basicDetails?.category || "N/A", // Default value if undefined
+        display: true,
+      },
+      {
+        descriptor: {
+          code: "subCategory",
+          name: "SubCategory",
+          short_desc: "The subcategory of the benefit",
+        },
+        value: input?.[0]?.basicDetails?.subCategory || "N/A", // Default value if undefined
+        display: true,
+      },
+      {
+        descriptor: {
+          code: "tags",
+          name: "Tags",
+          short_desc: "Keywords related to the scholarship",
+        },
+        value: input?.[0]?.basicDetails?.tags?.join(",") || "N/A", // Default value if undefined
+        display: true,
+      },
+    ],
+  };
+
   let providerObj = {
     provider: {
-      id: input?.[0]?.id,
+      id: input?.[0]?.provider_id,
       descriptor: {
-        name: input?.[0]?.providerName,
-        short_desc: input?.[0]?.description,
+        name: input?.[0]?.providingEntity?.name,
+        short_desc: input?.[0]?.benefitContent?.shortDescription,
         images: [
           {
-            url: "https://xyz.com/logo",
+            url: "https://fastly.picsum.photos/id/24/200/200.jpg?hmac=Tw5b43UPAehS5e4JyB0qMQysvfLBmu_GZ_iafWou3m8",
           },
         ],
       },
@@ -704,230 +1182,28 @@ export const selectItemMapperNew = (input: any) => {
     },
     items: [
       {
-        id: input?.[0]?.id,
+        id: input?.[0]?.provider_id,
         descriptor: {
-          name: input?.[0]?.name,
-          long_desc: input?.[0]?.long_description,
+          name: input?.[0]?.basicDetails?.title || "NA",
+          long_desc: input?.[0]?.benefitContent?.longDescription || "NA",
         },
         price: {
-          currency: input?.[0]?.currency,
-          value: input?.[0]?.amount,
+          currency: input?.[0]?.benefitContent?.currency || "$",
+          value: input?.[0]?.benefitContent?.amount || "5000",
         },
         time: {
           range: {
-            start: "2023-01-03T13:23:01+00:00",
-            end: input?.[0]?.applicationDeadline + "T00:00:00+00:00",
+            start: "2024-10-31T00:00:00+00:00",
+            end: "2024-12-31T00:00:00+00:00",
           },
         },
         rateable: false,
+
         tags: [
-          {
-            display: true,
-            descriptor: {
-              code: "background-eligibility",
-              name: "Background eligibility",
-            },
-            list: [
-              {
-                descriptor: {
-                  code: "social-eligibility",
-                  name: "Social eligibility",
-                  short_desc:
-                    "Social eligibility of the candidate to be eligible",
-                },
-                value: input?.[0]?.eligibility?.caste?.[0]?.caste_name,
-                display: true,
-              },
-              {
-                descriptor: {
-                  code: "social-eligibility",
-                  name: "Social eligibility",
-                  short_desc:
-                    "Social eligibility of the candidate to be eligible",
-                },
-                value: "ST",
-                display: true,
-              },
-              {
-                descriptor: {
-                  code: "gender-eligibility",
-                  name: "Gender eligibility",
-                  short_desc: "Gender of the candidate to be eligible",
-                },
-                value: input?.[0]?.eligibility?.gender,
-                display: true,
-              },
-              {
-                descriptor: {
-                  code: "ann-hh-inc",
-                  name: "Maximum Annual Household Income",
-                  short_desc:
-                    "Maximum Family income per annum above which will render the applicant ineligible",
-                },
-                value: input?.[0]?.eligibility?.annual_income,
-                display: true,
-              },
-            ],
-          },
-          {
-            display: true,
-            descriptor: {
-              code: "academic-eligibility",
-              name: "Academic Eligibility",
-            },
-            list: [
-              {
-                descriptor: {
-                  code: "course-name",
-                  name: "Name of the course",
-                },
-                value: input?.[0]?.eligibility?.class?.[0]?.class?.toString(),
-                display: true,
-              },
-              {
-                descriptor: {
-                  code: "min-percentage",
-                  name: "Minimum percentage of marks to be obtained in the course for eligibility",
-                },
-                value: "60",
-                display: true,
-              },
-            ],
-          },
-          {
-            display: true,
-            descriptor: {
-              code: "academic-eligibility",
-              name: "Academic Eligibility",
-            },
-            list: [
-              {
-                descriptor: {
-                  code: "course-name",
-                  name: "Name of the course",
-                },
-                value: "Class-XII",
-                display: true,
-              },
-              {
-                descriptor: {
-                  code: "min-percentage",
-                  name: "Minimum percentage of marks to be obtained in the course for eligibility",
-                },
-                value: "60",
-                display: true,
-              },
-            ],
-          },
-          {
-            display: true,
-            descriptor: {
-              code: "academic-eligibility",
-              name: "Academic Eligibility",
-            },
-            list: [
-              {
-                descriptor: {
-                  code: "course-name",
-                  name: "Name of the course",
-                },
-                value: "Bachelor of Dental Surgery (BDS)",
-                display: true,
-              },
-              {
-                descriptor: {
-                  code: "course-level",
-                  name: "Level of the course",
-                },
-                value: "Under Graduate",
-                display: true,
-              },
-              {
-                descriptor: {
-                  code: "course-status",
-                  name: "Status of the course",
-                },
-                value: "In-Progress",
-                display: true,
-              },
-              {
-                descriptor: {
-                  code: "min-percentage",
-                  name: "Minimum percentage of marks to be obtained in the course for eligibility",
-                },
-                value: "60",
-                display: true,
-              },
-            ],
-          },
-          {
-            display: true,
-            descriptor: {
-              code: "required-docs",
-              name: "Required documents",
-            },
-            list: [
-              {
-                descriptor: {
-                  code: "mandatory-doc",
-                  name: "Mandatory document",
-                },
-                value: "Applicant Photo",
-                display: true,
-              },
-              {
-                descriptor: {
-                  code: "mandatory-doc",
-                  name: "Mandatory document",
-                },
-                value: "Proof of Identity",
-                display: true,
-              },
-              {
-                descriptor: {
-                  code: "mandatory-doc",
-                  name: "Mandatory document",
-                },
-                value: "Proof of Address",
-                display: true,
-              },
-              {
-                descriptor: {
-                  code: "optional-doc",
-                  name: "Optional document",
-                },
-                value: "PAN No/Domicile certificate",
-                display: true,
-              },
-            ],
-          },
-          {
-            display: true,
-            descriptor: {
-              code: "additional-info",
-              name: "Additional info",
-            },
-            list: [
-              {
-                descriptor: {
-                  code: "faq-url",
-                  name: "FAQ URL",
-                  short_desc: "Link to FAQ",
-                },
-                value: "https://www.vs.co.in/vs/resources/68/faq/1015_27.html",
-                display: true,
-              },
-              {
-                descriptor: {
-                  code: "tnc-url",
-                  name: "T&C URL",
-                  short_desc: input?.[0]?.termsAndConditions,
-                },
-                value: "https://www.vs.co.in/vs/resources/68/tnc/1015_27.html",
-                display: true,
-              },
-            ],
-          },
+          ...mapEligibilityToTags(input?.[0]?.eligibility),
+          ...sponsoringEntitiesTags, // Dynamically mapped tags
+          ...mapDocumentsToTags(input?.[0]?.documents || []),
+          additionalBenefitTag,
         ],
         location_ids: ["L1", "L2"],
         fulfillment_ids: ["VSP_FUL_1113"],
@@ -975,17 +1251,18 @@ export const selectItemMapperNew = (input: any) => {
 
 export const confirmItemMapperNew = (input: any) => {
   console.log("input-->>", JSON.stringify(input));
+
   let providerObj = {
     order: {
       id: input?.[0]?.order_id,
       provider: {
-        id: input?.[0]?.id,
+        id: input?.[0]?.provider_id,
         descriptor: {
-          name: input?.[0]?.providerName,
-          short_desc: input?.[0]?.description,
+          name: input?.[0]?.providingEntity?.name,
+          short_desc: input?.[0]?.benefitContent?.shortDescription,
           images: [
             {
-              url: "https://xyz.com/logo",
+              url: "https://fastly.picsum.photos/id/24/200/200.jpg?hmac=Tw5b43UPAehS5e4JyB0qMQysvfLBmu_GZ_iafWou3m8",
             },
           ],
         },
@@ -1017,19 +1294,23 @@ export const confirmItemMapperNew = (input: any) => {
       },
       items: [
         {
-          id: input?.[0]?.id,
+          id: input?.[0]?.provider_id,
           descriptor: {
-            name: input?.[0]?.name,
-            long_desc: input?.[0]?.long_description,
+            name: input?.[0]?.basicDetails?.title || "NA",
+            long_desc: input?.[0]?.benefitContent?.longDescription || "NA",
           },
           price: {
-            currency: input?.[0]?.currency,
-            value: input?.[0]?.amount,
+            currency: input?.[0]?.benefitContent?.currency || "$",
+            value: input?.[0]?.benefitContent?.amount || "5000",
           },
           time: {
             range: {
-              start: "2023-01-03T13:23:01+00:00",
-              end: input?.[0]?.applicationDeadline + "T00:00:00+00:00",
+              start:
+                input?.[0]?.basicDetails?.applicationOpenDate +
+                "T00:00:00+00:00",
+              end:
+                input?.[0]?.basicDetails?.applicationCloseDate +
+                "T00:00:00+00:00",
             },
           },
           rateable: false,
@@ -1048,7 +1329,7 @@ export const confirmItemMapperNew = (input: any) => {
                     short_desc:
                       "Social eligibility of the candidate to be eligible",
                   },
-                  value: input?.[0]?.eligibility?.caste?.[0]?.caste_name,
+                  value: input?.[0]?.caste || "General",
                   display: true,
                 },
                 {
@@ -1067,17 +1348,7 @@ export const confirmItemMapperNew = (input: any) => {
                     name: "Gender eligibility",
                     short_desc: "Gender of the candidate to be eligible",
                   },
-                  value: input?.[0]?.eligibility?.gender,
-                  display: true,
-                },
-                {
-                  descriptor: {
-                    code: "ann-hh-inc",
-                    name: "Maximum Annual Household Income",
-                    short_desc:
-                      "Maximum Family income per annum above which will render the applicant ineligible",
-                  },
-                  value: input?.[0]?.eligibility?.annual_income,
+                  value: input?.[0]?.gender || "All",
                   display: true,
                 },
               ],
@@ -1094,7 +1365,7 @@ export const confirmItemMapperNew = (input: any) => {
                     code: "course-name",
                     name: "Name of the course",
                   },
-                  value: input?.[0]?.eligibility?.class?.[0]?.class?.toString(),
+                  value: input?.[0]?.class,
                   display: true,
                 },
                 {
@@ -1235,7 +1506,7 @@ export const confirmItemMapperNew = (input: any) => {
                   descriptor: {
                     code: "tnc-url",
                     name: "T&C URL",
-                    short_desc: input?.[0]?.termsAndConditions,
+                    short_desc: "Demo terms and conditions",
                   },
                   value:
                     "https://www.vs.co.in/vs/resources/68/tnc/1015_27.html",
