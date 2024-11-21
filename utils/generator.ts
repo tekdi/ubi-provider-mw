@@ -1305,12 +1305,8 @@ export const confirmItemMapperNew = (input: any) => {
           },
           time: {
             range: {
-              start:
-                input?.[0]?.basicDetails?.applicationOpenDate +
-                "T00:00:00+00:00",
-              end:
-                input?.[0]?.basicDetails?.applicationCloseDate +
-                "T00:00:00+00:00",
+              start: "2023-07-23T18:30:00.000000Z",
+              end: "2023-10-12T18:30:00.000000Z",
             },
           },
           rateable: false,
