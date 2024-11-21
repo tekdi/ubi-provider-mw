@@ -662,7 +662,7 @@ export class AppService {
 
   async handleInitV2(selectDto: any) {
     let ubi_provider_url =
-      "https://dev-uba-provider.tekdinext.com/uba-ui/provider.com";
+      "https://dev-uba-provider.tekdinext.com/uba-ui/benefit";
     let response = [];
     const itemId = selectDto.message.order.items[0].id;
     const courseData = await axios.post(
@@ -971,7 +971,9 @@ export class AppService {
       // If there's a hostelerProof file, handle the file data
       if (body?.hostelerProof) {
         // Decode the base64 string for the file
-        const base64Content = body?.hostelerProof.split(",")[1]; // Remove the data URI prefix
+        const base64Content = body?.hostelerProof?.split(",")[1];
+
+        // Remove the data URI prefix
         const binaryData = Buffer.from(base64Content, "base64");
 
         // Generate file path for saving the file temporarily
