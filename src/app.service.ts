@@ -661,8 +661,7 @@ export class AppService {
   }
 
   async handleInitV2(selectDto: any) {
-    let ubi_provider_url =
-      "https://dev-uba-provider.tekdinext.com/uba-ui/benefit";
+    let ubi_provider_url = "https://devpiramal.tekdinext.com/uba-ui/benefit";
     let response = [];
     const itemId = selectDto.message.order.items[0].id;
     const courseData = await axios.post(
