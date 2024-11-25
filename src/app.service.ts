@@ -894,6 +894,25 @@ export class AppService {
     const savePaths: string[] = [];
     try {
       const submission_id = uuidv4();
+
+      //dynamically generate Schema JSON
+
+      const schema = Object.keys(body)
+        .filter((key) => {
+          const value = body[key];
+          // Check if the value is a base64 string
+          const isBase64 =
+            typeof value === "string" &&
+            (value.match(/^data:([a-zA-Z0-9-+/]+);base64,/) ||
+              value.match(/^[A-Za-z0-9+/=]+$/)) &&
+            value.length % 4 === 0; // Base64 strings are always a multiple of 4
+          return !isBase64; // Exclude base64 fields
+        })
+        .map((key) => ({
+          name: key,
+          value: body[key],
+        }));
+
       // Track all file paths for cleanup
 
       const payload = {
@@ -953,29 +972,30 @@ export class AppService {
             studentType: body?.studentType || "Regular",
             aadharLast4Digits: body?.aadharLast4Digits || "1234",
           },
-          schema: JSON.stringify([
-            { name: "id", value: "b642cec5-5c14-4c6a-b1cd-d017b5fb4cad" },
-            { name: "applicationNumber", value: "PB-BTR-2024-11-17-000148" },
-            { name: "individualId", value: "IndUs-123" },
-            { name: "programCode", value: "PROG-001" },
-            { name: "status", value: "ARCHIVED" },
-            { name: "applicantId", value: "applicant-132" },
-            { name: "studentName", value: "John Doe" },
-            { name: "fatherName", value: "Richard Doe" },
-            { name: "samagraId", value: "samagra-001" },
-            { name: "currentSchoolName", value: "ABC High School" },
-            { name: "currentSchoolAddress", value: "123 Main St, City, State" },
-            { name: "currentSchoolAddressDistrict", value: "District 1" },
-            { name: "currentClass", value: "10" },
-            { name: "previousYearMarks", value: "85" },
-            { name: "studentType", value: "Regular" },
-            { name: "aadharLast4Digits", value: "1234" },
-            { name: "caste", value: "General" },
-            { name: "income", value: "50000" },
-            { name: "gender", value: "Male" },
-            { name: "age", value: "15" },
-            { name: "disability", value: "false" },
-          ]),
+          schema: JSON.stringify(schema),
+          // schema: JSON.stringify([
+          //   { name: "id", value: "b642cec5-5c14-4c6a-b1cd-d017b5fb4cad" },
+          //   { name: "applicationNumber", value: "PB-BTR-2024-11-17-000148" },
+          //   { name: "individualId", value: "IndUs-123" },
+          //   { name: "programCode", value: "PROG-001" },
+          //   { name: "status", value: "ARCHIVED" },
+          //   { name: "applicantId", value: "applicant-132" },
+          //   { name: "studentName", value: "John Doe" },
+          //   { name: "fatherName", value: "Richard Doe" },
+          //   { name: "samagraId", value: "samagra-001" },
+          //   { name: "currentSchoolName", value: "ABC High School" },
+          //   { name: "currentSchoolAddress", value: "123 Main St, City, State" },
+          //   { name: "currentSchoolAddressDistrict", value: "District 1" },
+          //   { name: "currentClass", value: "10" },
+          //   { name: "previousYearMarks", value: "85" },
+          //   { name: "studentType", value: "Regular" },
+          //   { name: "aadharLast4Digits", value: "1234" },
+          //   { name: "caste", value: "General" },
+          //   { name: "income", value: "50000" },
+          //   { name: "gender", value: "Male" },
+          //   { name: "age", value: "15" },
+          //   { name: "disability", value: "false" },
+          // ]),
         },
         // Simplified for brevity
       };
