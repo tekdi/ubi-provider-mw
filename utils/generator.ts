@@ -1250,8 +1250,6 @@ export const selectItemMapperNew = (input: any) => {
 };
 
 export const confirmItemMapperNew = (input: any) => {
-  console.log("input-->>", JSON.stringify(input));
-
   let providerObj = {
     order: {
       id: input?.[0]?.order_id,

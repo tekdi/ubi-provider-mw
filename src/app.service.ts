@@ -780,6 +780,8 @@ export class AppService {
       confirmDto.message.order.items[0].xinput.form.submission_id;
     const itemId = confirmDto?.message?.order?.items[0]?.id;
 
+    const application_id = confirmDto.message.order.provider.id;
+
     const courseData = await axios.post(
       `${this.strapi_base_url}/benefits/v1/_get`,
       {
@@ -798,70 +800,50 @@ export class AppService {
     const order_id: string = "TLEXP_" + this.generateRandomString();
     mappedResponse[0].order_id = order_id;
 
-    // get customer details based on submission id and content id
+    const updateCustomerPayload = {
+      RequestInfo: {
+        apiId: "application-services",
+        ver: "1.0.0",
+        ts: 218973218,
+        action: "update",
+        did: "ASdassad",
+        key: "Asd",
+        msgId: "update status",
+        authToken: "token",
+        userInfo: {
+          id: 24226,
+          uuid: "11b0e02b-0145-4de2-bc42-c97b96264807",
+          userName: "amr001",
+          name: "leela",
+          mobileNumber: "9814424443",
+          emailId: "leela@llgmail.com",
+          type: "EMPLOYEE",
+          active: true,
+          tenantId: "pb.amritsar",
+        },
+      },
+      applicationId: application_id,
+      order_id: order_id,
+      submission_id: submission_id,
+      status: "",
+    };
 
-    // const customerData = await axios.get(
-    //   `${this.strapi_base_url}/api/applications?filters[$and][0][submission_id][$eq]=${submission_id}`
-    // );
-
-    // console.log("customerData-->>", customerData?.data?.data);
-    // // get document id from customerData
-
-    // let document_id = customerData?.data?.data?.[0]?.documentId;
-
-    // console.log("orderid--->>", order_id);
-
-    // //update customer details payload
-
-    // const updateCustomerPayload = {
-    //   data: {
-    //     first_name: customerData?.data?.data?.[0]?.first_name || "NA",
-    //     last_name: customerData?.data?.data?.[0]?.last_name || "NA",
-    //     father_name: customerData?.data?.data?.[0]?.father_name || "NA",
-    //     samagra_id: customerData?.data?.data?.[0]?.samagra_id || "NA",
-    //     class: customerData?.data?.data?.[0]?.class || 0,
-    //     resident_type: customerData?.data?.data?.[0]?.resident_type || "NA",
-    //     aadhaar: customerData?.data?.data?.[0]?.aadhaar || "NA",
-    //     marks_previous_class:
-    //       customerData?.data?.data?.[0]?.marks_previous_class || 0,
-    //     caste: customerData?.data?.data?.[0]?.caste || "NA",
-    //     application_status:
-    //       customerData?.data?.data?.[0]?.application_status || "NA",
-    //     current_school_name:
-    //       customerData?.data?.data?.[0]?.current_school_name || "NA",
-    //     current_school_address:
-    //       customerData?.data?.data?.[0]?.current_school_address || "NA",
-    //     application_date: customerData?.data?.data?.[0]?.application_date,
-    //     phone: customerData?.data?.data?.[0]?.phone || "NA",
-    //     gender: customerData?.data?.data?.[0]?.gender || "NA",
-    //     order_id: order_id || 0,
-    //     transaction_id: customerData?.data?.data?.[0]?.transaction_id || "NA",
-    //     submission_id: customerData?.data?.data?.[0]?.submission_id || "NA",
-    //     content_id: customerData?.data?.data?.[0]?.content_id || "NA",
-    //   },
-    // };
-
-    // console.log("updateCustomerPayload--->>", updateCustomerPayload);
-
-    // console.log(
-    //   "urlll--->>>",
-
-    //   `${this.strapi_base_url}/api/applications/${document_id}`,
-    //   updateCustomerPayload
-    // );
-
-    // // Axios POST call
-    // const orderDetails = await axios.put(
-    //   `${this.strapi_base_url}/api/applications/${document_id}`,
-    //   updateCustomerPayload
-    // );
+    // Axios POST call
+    const orderDetails = await fetch(
+      "https://devpiramal.tekdinext.com/application/v1/_updatestatus",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json", // Ensure the Content-Type is correct
+        },
+        body: JSON.stringify(updateCustomerPayload), // Stringify the payload
+      }
+    );
 
     let order = confirmItemMapperNew(mappedResponse);
 
     order["state"] = "COMPLETE";
     order["updated_at"] = new Date(Date.now());
-
-    console.log("order--->>", order);
 
     confirmDto.message = order;
     confirmDto.context.action = "on_confirm";
@@ -909,9 +891,10 @@ export class AppService {
   }
 
   async handleInitSubmitV2(body: any) {
+    const savePaths: string[] = [];
     try {
       const submission_id = uuidv4();
-      let savePath;
+      // Track all file paths for cleanup
 
       const payload = {
         RequestInfo: {
@@ -945,6 +928,10 @@ export class AppService {
           wfStatus: null,
           auditDetails: null,
           additionalDetails: {},
+          orderId: "",
+          transactionId: "",
+          submissionId: submission_id,
+          contentId: body?.benefit_id,
           applicant: {
             id: Math.random().toString(36).substring(2, 12),
             applicationId: null,
@@ -990,135 +977,102 @@ export class AppService {
             { name: "disability", value: "false" },
           ]),
         },
+        // Simplified for brevity
       };
 
-      // Create the FormData object
       const formData = new FormData();
-
-      // Append the JSON payload for the 'application' field
       formData.append("application", JSON.stringify(payload), {
         contentType: "application/json",
       });
 
-      // If there's a hostelerProof file, handle the file data
-      if (body?.hostelerProof) {
-        // Decode the base64 string for the file
-        const base64Content = body?.hostelerProof?.split(",")[1];
+      const processFile = (base64String: string, fileName: string) => {
+        if (!base64String) return;
+        const base64Content = base64String.split(",")[1];
+        const metadataMatch = base64String.match(
+          /data:([^;]+);(?:name=([^;]+))?/
+        );
 
-        // Remove the data URI prefix
+        let extension = "bin"; // Default extension
+        let actualFileName = fileName;
+
+        if (metadataMatch) {
+          const mimeType = metadataMatch[1]; // Extract MIME type
+          const providedFileName = metadataMatch[2]; // Extract file name if present
+          extension = mimeType.split("/")[1] || extension; // Get extension from MIME
+          if (providedFileName) {
+            // Extract extension from the provided file name if available
+            const nameParts = providedFileName.split(".");
+            if (nameParts.length > 1) {
+              extension = nameParts.pop(); // Last part as extension
+              actualFileName = nameParts.join("."); // Base name
+            }
+          }
+        }
+
+        console.log(`Determined Extension: ${extension}`);
+        console.log(`Determined File Name: ${actualFileName}`);
         const binaryData = Buffer.from(base64Content, "base64");
-
-        // Generate file path for saving the file temporarily
         const targetFolder = path.join(__dirname, "target");
-        savePath = path.join(targetFolder, "sample(1).pdf");
+        const savePath = path.join(targetFolder, `${fileName}.${extension}`);
         const dir = path.dirname(savePath);
+
         if (!fs.existsSync(dir)) {
           fs.mkdirSync(dir, { recursive: true });
           console.log(`Directory created: ${dir}`);
         }
 
-        // Save the decoded file to the file system
         fs.writeFileSync(savePath, binaryData);
+        savePaths.push(savePath);
         console.log(`File saved at: ${savePath}`);
 
-        // Append the file to the FormData
-        formData.append(
-          "files",
-          fs.createReadStream("dist/src/target/sample(1).pdf"),
-          {
-            filename: "hostelerProof.pdf", // Optional: Provide a filename
-            contentType: "application/pdf", // Optional: Define the content type if necessary
-          }
-        );
-      }
+        formData.append("files", fs.createReadStream(savePath), {
+          filename: `${fileName}.${extension}`,
+          contentType: `application/${extension}`,
+        });
+      };
 
-      if (body?.identityProof) {
-        // Decode the base64 string for the file
-        const base64Content = body?.identityProof?.split(",")[1];
+      // Process each file
+      processFile(body?.hostelerProof, "hostelerProof");
+      processFile(body?.identityProof, "identityProof");
+      processFile(body?.disablityProof, "disablityProof");
 
-        // Remove the data URI prefix
-        const binaryData = Buffer.from(base64Content, "base64");
-
-        // Generate file path for saving the file temporarily
-        const targetFolder = path.join(__dirname, "target");
-        savePath = path.join(targetFolder, "sample(2).pdf");
-        const dir = path.dirname(savePath);
-        if (!fs.existsSync(dir)) {
-          fs.mkdirSync(dir, { recursive: true });
-          console.log(`Directory created: ${dir}`);
-        }
-
-        // Save the decoded file to the file system
-        fs.writeFileSync(savePath, binaryData);
-        console.log(`File saved at: ${savePath}`);
-
-        // Append the file to the FormData
-        formData.append(
-          "files",
-          fs.createReadStream("dist/src/target/sample(2).pdf"),
-          {
-            filename: "identityProof.pdf", // Optional: Provide a filename
-            contentType: "application/pdf", // Optional: Define the content type if necessary
-          }
-        );
-      }
-
-      if (body?.disablityProof) {
-        // Decode the base64 string for the file
-        const base64Content = body?.disablityProof?.split(",")[1];
-
-        // Remove the data URI prefix
-        const binaryData = Buffer.from(base64Content, "base64");
-
-        // Generate file path for saving the file temporarily
-        const targetFolder = path.join(__dirname, "target");
-        savePath = path.join(targetFolder, "sample(3).pdf");
-        const dir = path.dirname(savePath);
-        if (!fs.existsSync(dir)) {
-          fs.mkdirSync(dir, { recursive: true });
-          console.log(`Directory created: ${dir}`);
-        }
-
-        // Save the decoded file to the file system
-        fs.writeFileSync(savePath, binaryData);
-        console.log(`File saved at: ${savePath}`);
-
-        // Append the file to the FormData
-        formData.append(
-          "files",
-          fs.createReadStream("dist/src/target/sample(3).pdf"),
-          {
-            filename: "disablityProof.pdf", // Optional: Provide a filename
-            contentType: "application/pdf", // Optional: Define the content type if necessary
-          }
-        );
-      }
-
-      // Make the POST request with the FormData
+      // Make the POST request
       const response = await fetch(
         "https://devpiramal.tekdinext.com/application/v1/_create",
         {
           method: "POST",
           body: formData,
           headers: {
-            ...formData.getHeaders(), // This will include Content-Type with the correct boundary
+            ...formData.getHeaders(),
           },
         }
       );
 
-      console.log("response--->>", response);
+      const data = await response.json();
+      const application_id = data?.Applications?.[0]?.id;
+      console.log("Response Data:", data);
 
-      // Clean up the temporary file
-      if (savePath) {
-        fs.unlinkSync(savePath); // Remove the temporary file
-        console.log(`File deleted: ${savePath}`);
-      }
+      //Clean up all temporary files
+      savePaths.forEach((filePath) => {
+        if (fs.existsSync(filePath)) {
+          fs.unlinkSync(filePath);
+          console.log(`File deleted: ${filePath}`);
+        }
+      });
 
-      // Handle the response
-
-      return submission_id;
+      return {
+        submission_id: submission_id,
+        application_id: application_id,
+      };
     } catch (error) {
       console.error("Error during submission:", error);
+      // Attempt cleanup on error
+      savePaths.forEach((filePath) => {
+        if (fs.existsSync(filePath)) {
+          fs.unlinkSync(filePath);
+          console.log(`File deleted: ${filePath}`);
+        }
+      });
     }
   }
 
