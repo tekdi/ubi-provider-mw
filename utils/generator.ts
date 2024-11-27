@@ -965,8 +965,9 @@ export const selectItemMapper = (providerArr: any) => {
 //   return providerObj;
 // };
 
-export const selectItemMapperNew = (input: any) => {
+export const selectItemMapperNew = (input: any, schemaJson?: any) => {
   console.log("input-->>123", JSON.stringify(input));
+  let schemaJsonTag;
 
   const mapEligibilityToTags = (eligibilities: any[]) => {
     if (!eligibilities || !Array.isArray(eligibilities)) {
@@ -1103,6 +1104,28 @@ export const selectItemMapperNew = (input: any) => {
     ];
   };
 
+  if (schemaJson) {
+    schemaJsonTag = {
+      display: true,
+      descriptor: {
+        code: "schema details",
+        name: "schema details",
+        short_desc: "Information regarding scholarship schema",
+      },
+      list: [
+        {
+          descriptor: {
+            code: "schema details",
+            name: "schema details",
+            short_desc: "Information regarding scholarship schema",
+          },
+          value: schemaJson || "N/A", // Default value if undefined
+          display: true,
+        },
+      ],
+    };
+  }
+
   const additionalBenefitTag = {
     display: true,
     descriptor: {
@@ -1204,6 +1227,7 @@ export const selectItemMapperNew = (input: any) => {
           ...sponsoringEntitiesTags, // Dynamically mapped tags
           ...mapDocumentsToTags(input?.[0]?.documents || []),
           additionalBenefitTag,
+          schemaJsonTag,
         ],
         location_ids: ["L1", "L2"],
         fulfillment_ids: ["VSP_FUL_1113"],

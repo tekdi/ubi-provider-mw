@@ -415,6 +415,7 @@ export class AppService {
   }
 
   async handleSelectV2(selectDto: any) {
+    let schemaJson;
     let response = [];
     console.log("select api calling", selectDto);
     // fine tune the order here
@@ -435,12 +436,14 @@ export class AppService {
 
     response.push(courseData.data);
 
+    schemaJson = courseData?.data?.schema.replace(/\\/g, "");
+
     // Use the mapping function to transform the response
     const mappedResponse = await this.mapFlnResponseToDesiredFormat(response);
 
     console.log("mappedResponse-->>", mappedResponse);
 
-    selectDto.message.order = selectItemMapperNew(mappedResponse);
+    selectDto.message.order = selectItemMapperNew(mappedResponse, schemaJson);
     selectDto.context.action = "on_select";
     const resp = selectDto;
     return resp;
@@ -661,6 +664,7 @@ export class AppService {
   }
 
   async handleInitV2(selectDto: any) {
+    let schemaJson;
     let ubi_provider_url = "https://devpiramal.tekdinext.com/uba-ui/benefit";
     let response = [];
     const itemId = selectDto.message.order.items[0].id;
@@ -672,6 +676,7 @@ export class AppService {
     );
 
     response.push(courseData.data);
+    schemaJson = courseData?.data?.schema.replace(/\\/g, "");
 
     // Use the mapping function to transform the response
     const mappedResponse = await this.mapFlnResponseToDesiredFormat(response);
@@ -696,7 +701,7 @@ export class AppService {
       required: true,
     };
     const { id, descriptor, categories, locations, items, rateable }: any =
-      selectItemMapperNew(mappedResponse);
+      selectItemMapperNew(mappedResponse, schemaJson);
     items[0].xinput = xinput;
     selectDto.message.order = {
       ...selectDto.message.order,
