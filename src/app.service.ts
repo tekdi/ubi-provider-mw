@@ -890,31 +890,241 @@ export class AppService {
     }
   }
 
+  // async handleInitSubmitV2(body: any) {
+  //   const savePaths: string[] = [];
+  //   try {
+  //     const submission_id = uuidv4();
+
+  //     //dynamically generate Schema JSON
+
+  //     const schema = Object.keys(body)
+  //       .filter((key) => {
+  //         const value = body[key];
+  //         // Check if the value is a base64 string
+  //         const isBase64 =
+  //           typeof value === "string" &&
+  //           (value.match(/^data:([a-zA-Z0-9-+/]+);base64,/) ||
+  //             value.match(/^[A-Za-z0-9+/=]+$/)) &&
+  //           value.length % 4 === 0; // Base64 strings are always a multiple of 4
+  //         return !isBase64; // Exclude base64 fields
+  //       })
+  //       .map((key) => ({
+  //         name: key,
+  //         value: body[key],
+  //       }));
+
+  //     // Track all file paths for cleanup
+
+  //     const payload = {
+  //       RequestInfo: {
+  //         apiId: "application-services",
+  //         ver: "1.0.0",
+  //         ts: Date.now(),
+  //         action: "add",
+  //         did: "ASdassad",
+  //         key: "Asd",
+  //         msgId: "search with from and to values",
+  //         authToken: "token",
+  //         userInfo: {
+  //           id: 24226,
+  //           uuid: uuidv4(),
+  //           userName: `user${Math.floor(Math.random() * 10000)}`,
+  //           name: `${body?.firstName} ${body?.lastName}` || "NA",
+  //           mobileNumber: body?.phone || "NA",
+  //           emailId: body?.email || "NA",
+  //           type: "EMPLOYEE",
+  //           active: true,
+  //           tenantId: "pb.amritsar",
+  //         },
+  //       },
+  //       Application: {
+  //         id: null,
+  //         tenantId: "pb",
+  //         applicationNumber: null,
+  //         individualId: "IndUs-123",
+  //         programCode: "PROG-001",
+  //         status: null,
+  //         wfStatus: null,
+  //         auditDetails: null,
+  //         additionalDetails: {},
+  //         orderId: "",
+  //         transactionId: "",
+  //         submissionId: submission_id,
+  //         contentId: body?.benefit_id,
+  //         applicant: {
+  //           id: Math.random().toString(36).substring(2, 12),
+  //           applicationId: null,
+  //           studentName: `${body?.firstName} ${body?.lastName}` || "JOHN DOE",
+  //           fatherName: body?.fatherName || "GEORGE",
+  //           caste: body?.caste || "GENERAL",
+  //           income: body?.annualIncome || "5000",
+  //           gender: body?.gender || "All",
+  //           age: body?.age || 10,
+  //           disability: body?.disability || false,
+  //           samagraId: body?.samagra_id || "samagra-001",
+  //           currentSchoolName: body?.currentSchoolName || "ABC High School",
+  //           currentSchoolAddress:
+  //             body?.currentSchoolAddress || "123 Main St, City, State",
+  //           currentSchoolAddressDistrict:
+  //             body?.currentSchoolAddressDistrict || "District 1",
+  //           currentClass: body?.currentClass || "10",
+  //           previousYearMarks: body?.previousYearMarks || "85",
+  //           studentType: body?.studentType || "Regular",
+  //           aadharLast4Digits: body?.aadharLast4Digits || "1234",
+  //         },
+  //         schema: JSON.stringify(schema),
+  //         // schema: JSON.stringify([
+  //         //   { name: "id", value: "b642cec5-5c14-4c6a-b1cd-d017b5fb4cad" },
+  //         //   { name: "applicationNumber", value: "PB-BTR-2024-11-17-000148" },
+  //         //   { name: "individualId", value: "IndUs-123" },
+  //         //   { name: "programCode", value: "PROG-001" },
+  //         //   { name: "status", value: "ARCHIVED" },
+  //         //   { name: "applicantId", value: "applicant-132" },
+  //         //   { name: "studentName", value: "John Doe" },
+  //         //   { name: "fatherName", value: "Richard Doe" },
+  //         //   { name: "samagraId", value: "samagra-001" },
+  //         //   { name: "currentSchoolName", value: "ABC High School" },
+  //         //   { name: "currentSchoolAddress", value: "123 Main St, City, State" },
+  //         //   { name: "currentSchoolAddressDistrict", value: "District 1" },
+  //         //   { name: "currentClass", value: "10" },
+  //         //   { name: "previousYearMarks", value: "85" },
+  //         //   { name: "studentType", value: "Regular" },
+  //         //   { name: "aadharLast4Digits", value: "1234" },
+  //         //   { name: "caste", value: "General" },
+  //         //   { name: "income", value: "50000" },
+  //         //   { name: "gender", value: "Male" },
+  //         //   { name: "age", value: "15" },
+  //         //   { name: "disability", value: "false" },
+  //         // ]),
+  //       },
+  //       // Simplified for brevity
+  //     };
+
+  //     const formData = new FormData();
+  //     formData.append("application", JSON.stringify(payload), {
+  //       contentType: "application/json",
+  //     });
+
+  //     const processFile = (base64String: string, fileName: string) => {
+  //       if (!base64String) return;
+  //       const base64Content = base64String.split(",")[1];
+  //       const metadataMatch = base64String.match(
+  //         /data:([^;]+);(?:name=([^;]+))?/
+  //       );
+
+  //       let extension = "bin"; // Default extension
+  //       let actualFileName = fileName;
+
+  //       if (metadataMatch) {
+  //         const mimeType = metadataMatch[1]; // Extract MIME type
+  //         const providedFileName = metadataMatch[2]; // Extract file name if present
+  //         extension = mimeType.split("/")[1] || extension; // Get extension from MIME
+  //         if (providedFileName) {
+  //           // Extract extension from the provided file name if available
+  //           const nameParts = providedFileName.split(".");
+  //           if (nameParts.length > 1) {
+  //             extension = nameParts.pop(); // Last part as extension
+  //             actualFileName = nameParts.join("."); // Base name
+  //           }
+  //         }
+  //       }
+
+  //       console.log(`Determined Extension: ${extension}`);
+  //       console.log(`Determined File Name: ${actualFileName}`);
+  //       const binaryData = Buffer.from(base64Content, "base64");
+  //       const targetFolder = path.join(__dirname, "target");
+  //       const savePath = path.join(targetFolder, `${fileName}.${extension}`);
+  //       const dir = path.dirname(savePath);
+
+  //       if (!fs.existsSync(dir)) {
+  //         fs.mkdirSync(dir, { recursive: true });
+  //         console.log(`Directory created: ${dir}`);
+  //       }
+
+  //       fs.writeFileSync(savePath, binaryData);
+  //       savePaths.push(savePath);
+  //       console.log(`File saved at: ${savePath}`);
+
+  //       formData.append("files", fs.createReadStream(savePath), {
+  //         filename: `${fileName}.${extension}`,
+  //         contentType: `application/${extension}`,
+  //       });
+  //     };
+
+  //     // Process each file
+  //     processFile(body?.hostelerProof, "hostelerProof");
+  //     processFile(body?.identityProof, "identityProof");
+  //     processFile(body?.disablityProof, "disablityProof");
+
+  //     // Make the POST request
+  //     const response = await fetch(
+  //       "https://devpiramal.tekdinext.com/application/v1/_create",
+  //       {
+  //         method: "POST",
+  //         body: formData,
+  //         headers: {
+  //           ...formData.getHeaders(),
+  //         },
+  //       }
+  //     );
+
+  //     const data = await response.json();
+  //     const application_id = data?.Applications?.[0]?.id;
+  //     console.log("Response Data:", data);
+
+  //     //Clean up all temporary files
+  //     savePaths.forEach((filePath) => {
+  //       if (fs.existsSync(filePath)) {
+  //         fs.unlinkSync(filePath);
+  //         console.log(`File deleted: ${filePath}`);
+  //       }
+  //     });
+
+  //     return {
+  //       submission_id: submission_id,
+  //       application_id: application_id,
+  //     };
+  //   } catch (error) {
+  //     console.error("Error during submission:", error);
+  //     // Attempt cleanup on error
+  //     savePaths.forEach((filePath) => {
+  //       if (fs.existsSync(filePath)) {
+  //         fs.unlinkSync(filePath);
+  //         console.log(`File deleted: ${filePath}`);
+  //       }
+  //     });
+  //   }
+  // }
+
   async handleInitSubmitV2(body: any) {
     const savePaths: string[] = [];
     try {
       const submission_id = uuidv4();
 
-      //dynamically generate Schema JSON
+      // Separate Base64 fields and non-Base64 fields
+      const base64Fields: { name: string; value: string }[] = [];
+      const schema: { name: string; value: any }[] = [];
 
-      const schema = Object.keys(body)
-        .filter((key) => {
-          const value = body[key];
-          // Check if the value is a base64 string
-          const isBase64 =
-            typeof value === "string" &&
-            (value.match(/^data:([a-zA-Z0-9-+/]+);base64,/) ||
-              value.match(/^[A-Za-z0-9+/=]+$/)) &&
-            value.length % 4 === 0; // Base64 strings are always a multiple of 4
-          return !isBase64; // Exclude base64 fields
-        })
-        .map((key) => ({
-          name: key,
-          value: body[key],
-        }));
+      // Iterate over all keys in the body and separate them into base64Fields and schema
+      Object.keys(body).forEach((key) => {
+        const value = body[key];
 
-      // Track all file paths for cleanup
+        // Check if the value matches the base64 format
+        const isBase64 =
+          typeof value === "string" &&
+          value.startsWith("data:") && // Ensure it starts with 'data:'
+          value.includes(";base64,"); // Ensure it includes the base64 identifier
 
+        // If it's a base64 string, categorize it as a base64 field
+        if (isBase64) {
+          base64Fields.push({ name: key, value: value });
+        } else {
+          // If it's not base64, categorize it as a schema field
+          schema.push({ name: key, value: value });
+        }
+      });
+
+      // Prepare payload
       const payload = {
         RequestInfo: {
           apiId: "application-services",
@@ -952,7 +1162,7 @@ export class AppService {
           submissionId: submission_id,
           contentId: body?.benefit_id,
           applicant: {
-            id: Math.random().toString(36).substring(2, 12),
+            id: uuidv4(),
             applicationId: null,
             studentName: `${body?.firstName} ${body?.lastName}` || "JOHN DOE",
             fatherName: body?.fatherName || "GEORGE",
@@ -973,31 +1183,7 @@ export class AppService {
             aadharLast4Digits: body?.aadharLast4Digits || "1234",
           },
           schema: JSON.stringify(schema),
-          // schema: JSON.stringify([
-          //   { name: "id", value: "b642cec5-5c14-4c6a-b1cd-d017b5fb4cad" },
-          //   { name: "applicationNumber", value: "PB-BTR-2024-11-17-000148" },
-          //   { name: "individualId", value: "IndUs-123" },
-          //   { name: "programCode", value: "PROG-001" },
-          //   { name: "status", value: "ARCHIVED" },
-          //   { name: "applicantId", value: "applicant-132" },
-          //   { name: "studentName", value: "John Doe" },
-          //   { name: "fatherName", value: "Richard Doe" },
-          //   { name: "samagraId", value: "samagra-001" },
-          //   { name: "currentSchoolName", value: "ABC High School" },
-          //   { name: "currentSchoolAddress", value: "123 Main St, City, State" },
-          //   { name: "currentSchoolAddressDistrict", value: "District 1" },
-          //   { name: "currentClass", value: "10" },
-          //   { name: "previousYearMarks", value: "85" },
-          //   { name: "studentType", value: "Regular" },
-          //   { name: "aadharLast4Digits", value: "1234" },
-          //   { name: "caste", value: "General" },
-          //   { name: "income", value: "50000" },
-          //   { name: "gender", value: "Male" },
-          //   { name: "age", value: "15" },
-          //   { name: "disability", value: "false" },
-          // ]),
         },
-        // Simplified for brevity
       };
 
       const formData = new FormData();
@@ -1005,6 +1191,7 @@ export class AppService {
         contentType: "application/json",
       });
 
+      // Helper function to process a Base64 string and save the file
       const processFile = (base64String: string, fileName: string) => {
         if (!base64String) return;
         const base64Content = base64String.split(",")[1];
@@ -1051,10 +1238,19 @@ export class AppService {
         });
       };
 
-      // Process each file
-      processFile(body?.hostelerProof, "hostelerProof");
-      processFile(body?.identityProof, "identityProof");
-      processFile(body?.disablityProof, "disablityProof");
+      // Process all Base64 files dynamically
+      base64Fields.forEach((field) => {
+        // Ensure that the field value is a non-empty base64 string before calling processFile
+        if (
+          field.value &&
+          typeof field.value === "string" &&
+          field.value.startsWith("data:")
+        ) {
+          processFile(field.value, field.name);
+        } else {
+          console.warn(`Skipping non-base64 field: ${field.name}`);
+        }
+      });
 
       // Make the POST request
       const response = await fetch(
