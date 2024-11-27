@@ -1108,15 +1108,15 @@ export const selectItemMapperNew = (input: any, schemaJson?: any) => {
     schemaJsonTag = {
       display: true,
       descriptor: {
-        code: "schema details",
-        name: "schema details",
+        code: "benefit_schema",
+        name: "benefit_schema",
         short_desc: "Information regarding scholarship schema",
       },
       list: [
         {
           descriptor: {
-            code: "schema details",
-            name: "schema details",
+            code: "benefit_schema",
+            name: "benefit_schema",
             short_desc: "Information regarding scholarship schema",
           },
           value: schemaJson || "N/A", // Default value if undefined
