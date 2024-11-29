@@ -626,7 +626,11 @@ export class AppService {
     const mappedResponse = await this.mapFlnResponseToDesiredFormat(response);
 
     const status = {
-      billing: (({ name = "N/A", phone = "N/A", email = "N/A" }) => ({
+      billing: (({
+        name = "N/A",
+        phone = "N/A",
+        email = "demo@tekditechnologies.com",
+      }) => ({
         name,
         phone,
         email,
