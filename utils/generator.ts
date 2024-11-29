@@ -462,10 +462,38 @@ export const selectItemMapper = (providerArr: any) => {
     }
   );
 
-  const fulfillments: components["schemas"]["Fulfillment"][] = [
+  const fulfillments = [
     {
-      id: "DSEP_FUL_63587501",
+      state: {
+        descriptor: {
+          code: "application_status",
+          name: providerArr[0]?.status,
+        },
+        updated_at: "2023-02-06T09:55:41.161Z",
+      },
+      id: "VSP_FUL_114",
+      type: "SCHOLARSHIP",
       tracking: false,
+      agent: {
+        person: {
+          name: "Ekstep Foundation SPoc",
+        },
+        contact: {
+          email: "ekstepsupport@ekstep.com",
+        },
+      },
+      customer: {
+        id: "aadhaar:798677675565",
+        person: {
+          name: "Jane Doe",
+          age: "13",
+          gender: "female",
+        },
+        contact: {
+          phone: "+91-9663088848",
+          email: "jane.doe@example.com",
+        },
+      },
     },
   ];
 
@@ -677,7 +705,7 @@ export const selectItemMapper = (providerArr: any) => {
         tags: eligibilityTags,
         category_ids: categories.map((category) => category.id),
         location_ids: locations.map((location) => location.id),
-        fulfillment_ids: fulfillments.map((fulfillment) => fulfillment.id),
+        fulfillments: fulfillments.map((fulfillment) => fulfillment),
       };
       return providerItem;
     }

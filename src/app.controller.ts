@@ -48,11 +48,6 @@ export class AppController {
   }
 
   @Post("dsep/status")
-  getStatus(@Body() body: any) {
-    return this.appService.handleStatus(body);
-  }
-
-  @Post("/v2/dsep/status")
   getStatusV2(@Body() body: any) {
     return this.appService.handleStatusV2(body);
   }

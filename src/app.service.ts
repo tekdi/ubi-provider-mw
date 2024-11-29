@@ -344,6 +344,7 @@ export class AppService {
           eligibility, // Return the eligibility array directly
           documents, // Return the documents array directly
           provider_id: response.benefitId, // Extract provider name if available
+          status: response.status,
         };
       });
   }
@@ -420,11 +421,6 @@ export class AppService {
     console.log("select api calling", selectDto);
     // fine tune the order here
     const itemId = selectDto.message.order.items[0].id;
-    // const courseData = (await this.hasuraService.getFlnContentById(itemId)).data
-    //   .scholarship_content;
-    // const courseData = await axios.get(
-    //   `${this.strapi_base_url}/api/scholarships?filters[id][$eq]=${itemId}&populate[eligibility][populate]=*&populate[provider]=*&populate[financial_information][populate]=*&populate[sponsors]=*`
-    // );
 
     // Digit api url
     const courseData = await axios.post(
@@ -587,14 +583,54 @@ export class AppService {
     return resp;
   }
 
-  async handleStatusV2(selectDto: any) {
-    console.log("select api calling", selectDto);
+  async handleStatusV2(body: any) {
+    let response = [];
+    let schemaJson;
+    let benefit_id;
+    console.log("status api calling", body);
     // fine tune the order here
-    const itemId = selectDto.message.order_id;
-    const customer = (await this.hasuraService.getCustomerById(itemId)).data
-      .scholarship_customer_details[0];
+    let itemId = body?.message?.order_id;
+
+    //get application details from itemId
+    let applicationData = await axios.post(
+      `${this.strapi_base_url}/application/v1/getByApplicationId`,
+      {
+        applicationId: itemId,
+      }
+    );
+
+    //get benefit details as per the benefit id returned from the application details api
+
+    benefit_id = applicationData?.data?.contentId;
+
+    const benefitData = await axios.post(
+      `${this.strapi_base_url}/benefits/v1/_get`,
+      {
+        benefitId: `${benefit_id}`,
+      }
+    );
+
+    // Extract wfStatus from applicationData
+    let wfStatus = applicationData.data?.wfStatus;
+
+    // Add wfStatus to benefitData.data
+    if (wfStatus) {
+      benefitData.data.status = wfStatus;
+    }
+
+    response.push(benefitData.data);
+
+    schemaJson = courseData?.data?.schema.replace(/\\/g, "");
+
+    // Use the mapping function to transform the response
+    const mappedResponse = await this.mapFlnResponseToDesiredFormat(response);
+
     const status = {
-      billing: (({ name, phone, email }) => ({ name, phone, email }))(customer),
+      billing: (({ name = "N/A", phone = "N/A", email = "N/A" }) => ({
+        name,
+        phone,
+        email,
+      }))(applicationData.data),
       payments: [
         {
           params: {
@@ -608,12 +644,12 @@ export class AppService {
       ],
     };
 
-    const courseData = (
-      await this.hasuraService.getFlnContentById(customer.content_id)
-    ).data.scholarship_content;
+    // const courseData = (
+    //   await this.hasuraService.getFlnContentById(customer.content_id)
+    // ).data.scholarship_content;
     const { id, descriptor, categories, locations, items, rateable }: any =
-      selectItemMapper(courseData);
-    selectDto.message = {
+      selectItemMapper(mappedResponse);
+    body.message = {
       order: {
         id: itemId,
         provider: { id, descriptor, rateable, locations, categories },
@@ -621,8 +657,8 @@ export class AppService {
         ...status,
       },
     };
-    selectDto.context.action = "on_status";
-    const resp = selectDto;
+    body.context.action = "on_status";
+    const resp = body;
     return resp;
   }
 
