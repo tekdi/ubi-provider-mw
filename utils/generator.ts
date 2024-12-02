@@ -1120,14 +1120,16 @@ export const selectItemMapperNew = (input: any, schemaJson?: any) => {
           code: "required-docs",
           name: "Required Documents",
         },
-        list: documents.map((doc: any) => ({
-          descriptor: {
-            code: doc.documentType,
-            name: doc.isRequired ? "Mandatory Document" : "Optional Document",
-          },
-          value: doc.allowedProofs.join(", "),
-          display: true,
-        })),
+        list: documents
+          .filter((doc: any) => doc.isRequired) // Filter only mandatory documents
+          .map((doc: any) => ({
+            descriptor: {
+              code: doc.documentType,
+              name: "Mandatory Document", // Since only mandatory documents are included
+            },
+            value: doc.allowedProofs.join(", "),
+            display: true,
+          })),
       },
     ];
   };

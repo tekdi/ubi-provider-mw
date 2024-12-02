@@ -285,8 +285,10 @@ export class AppService {
         `${this.strapi_base_url}/benefits/v1/_getAll`
       );
 
-      // const flnResponse = response.data;
-      const flnResponse = response.data;
+      //   const flnResponse = response.data;
+      const flnResponse = response?.data.filter(
+        (item: any) => item.status?.toLowerCase() === "active"
+      );
 
       // Use the mapping function to transform the response
       const mappedResponse = await this.mapFlnResponseToDesiredFormat(
