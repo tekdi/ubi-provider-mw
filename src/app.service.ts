@@ -1197,7 +1197,7 @@ export class AppService {
           tenantId: "pb",
           applicationNumber: null,
           individualId: "IndUs-123",
-          programCode: "PROG-001",
+          programCode: body?.benefit_id,
           status: null,
           wfStatus: null,
           auditDetails: null,
@@ -1231,8 +1231,6 @@ export class AppService {
         },
       };
 
-      console.log("schema--->>", schema);
-
       const formData = new FormData();
       formData.append("application", JSON.stringify(payload), {
         contentType: "application/json",
@@ -1251,7 +1249,6 @@ export class AppService {
         console.log(`Determined Extension: ${extension}`);
         console.log(`Determined File Name: ${actualFileName}`);
         const binaryData = Buffer.from(base64Content, "base64");
-
         const targetFolder = path.join(__dirname, "target");
         const savePath = path.join(targetFolder, `${fileName}.${extension}`);
         const dir = path.dirname(savePath);
