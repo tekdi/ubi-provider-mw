@@ -1110,9 +1110,74 @@ export const selectItemMapperNew = (input: any, schemaJson?: any) => {
     })
   );
 
-  const mapDocumentsToTags = (documents: any[]) => {
+  // const mapDocumentsToTags = (documents: any[]) => {
+  //   if (!documents || !Array.isArray(documents)) return []; // Ensure it always returns an array
+
+  //   return [
+  //     {
+  //       display: true,
+  //       descriptor: {
+  //         code: "required-docs",
+  //         name: "Required Documents",
+  //       },
+  //       list: documents
+  //         .filter((doc: any) => doc.isRequired) // Filter only mandatory documents
+  //         .map((doc: any) => ({
+  //           descriptor: {
+  //             code: doc.documentType,
+  //             name: "Mandatory Document", // Since only mandatory documents are included
+  //           },
+  //           value: doc.allowedProofs.join(", "),
+  //           display: true,
+  //         })),
+  //     },
+  //   ];
+  // };
+
+  const mapDocumentsToTags = (documents: any[], eligibilities: any[]) => {
     if (!documents || !Array.isArray(documents)) return []; // Ensure it always returns an array
 
+    // Collect all allowedProofs from eligibilities
+    const allEligibilityProofs = eligibilities.flatMap(
+      (eligibility: any) => eligibility.allowedProofs || []
+    );
+
+    // Filter isRequired documents from the documents array
+    const requiredDocuments = documents.filter((doc: any) => doc.isRequired);
+
+    // Create a Set to track unique proofs
+    const uniqueProofs = new Set<string>();
+
+    // Combine isRequired documents and eligibility proofs
+    const combinedDocuments = [
+      ...requiredDocuments.map((doc: any) => {
+        const filteredProofs = doc.allowedProofs.filter((proof: string) => {
+          if (!uniqueProofs.has(proof)) {
+            uniqueProofs.add(proof);
+            return true;
+          }
+          return false;
+        });
+        return {
+          ...doc,
+          allowedProofs: filteredProofs,
+        };
+      }),
+      ...allEligibilityProofs
+        .filter((proof: string) => {
+          if (!uniqueProofs.has(proof)) {
+            uniqueProofs.add(proof);
+            return true;
+          }
+          return false;
+        })
+        .map((proof: string) => ({
+          documentType: "eligibilityProof",
+          allowedProofs: [proof],
+        })),
+    ];
+
+    // Format the result for the tags
     return [
       {
         display: true,
@@ -1120,12 +1185,12 @@ export const selectItemMapperNew = (input: any, schemaJson?: any) => {
           code: "required-docs",
           name: "Required Documents",
         },
-        list: documents
-          .filter((doc: any) => doc.isRequired) // Filter only mandatory documents
+        list: combinedDocuments
+          .filter((doc: any) => doc.allowedProofs.length > 0) // Filter out documents with no allowedProofs
           .map((doc: any) => ({
             descriptor: {
               code: doc.documentType,
-              name: "Mandatory Document", // Since only mandatory documents are included
+              name: "Mandatory Document",
             },
             value: doc.allowedProofs.join(", "),
             display: true,
@@ -1255,7 +1320,10 @@ export const selectItemMapperNew = (input: any, schemaJson?: any) => {
         tags: [
           ...mapEligibilityToTags(input?.[0]?.eligibility),
           ...sponsoringEntitiesTags, // Dynamically mapped tags
-          ...mapDocumentsToTags(input?.[0]?.documents || []),
+          ...mapDocumentsToTags(
+            input?.[0]?.documents || [],
+            input?.[0]?.eligibility || []
+          ), // Pass documents and eligibility arrays
           additionalBenefitTag,
           schemaJsonTag,
         ],
