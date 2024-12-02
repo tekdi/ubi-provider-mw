@@ -1156,11 +1156,9 @@ export class AppService {
       Object.keys(body).forEach((key) => {
         const value = body[key];
 
-        // Check if the value matches the base64 format
+        // Check if the value matches the new base64 format
         const isBase64 =
-          typeof value === "string" &&
-          value.startsWith("data:") && // Ensure it starts with 'data:'
-          value.includes(";base64,"); // Ensure it includes the base64 identifier
+          typeof value === "string" && value.startsWith("base64,"); // Ensure it starts with 'base64,'
 
         // If it's a base64 string, categorize it as a base64 field
         if (isBase64) {
@@ -1233,6 +1231,8 @@ export class AppService {
         },
       };
 
+      console.log("schema--->>", schema);
+
       const formData = new FormData();
       formData.append("application", JSON.stringify(payload), {
         contentType: "application/json",
@@ -1241,31 +1241,17 @@ export class AppService {
       // Helper function to process a Base64 string and save the file
       const processFile = (base64String: string, fileName: string) => {
         if (!base64String) return;
-        const base64Content = base64String.split(",")[1];
-        const metadataMatch = base64String.match(
-          /data:([^;]+);(?:name=([^;]+))?/
-        );
 
-        let extension = "bin"; // Default extension
-        let actualFileName = fileName;
+        const base64Content = base64String.split(",")[1]; // Extract content after 'base64,'
 
-        if (metadataMatch) {
-          const mimeType = metadataMatch[1]; // Extract MIME type
-          const providedFileName = metadataMatch[2]; // Extract file name if present
-          extension = mimeType.split("/")[1] || extension; // Get extension from MIME
-          if (providedFileName) {
-            // Extract extension from the provided file name if available
-            const nameParts = providedFileName.split(".");
-            if (nameParts.length > 1) {
-              extension = nameParts.pop(); // Last part as extension
-              actualFileName = nameParts.join("."); // Base name
-            }
-          }
-        }
+        // Use a default extension if no metadata is provided
+        const extension = "json";
+        const actualFileName = fileName;
 
         console.log(`Determined Extension: ${extension}`);
         console.log(`Determined File Name: ${actualFileName}`);
         const binaryData = Buffer.from(base64Content, "base64");
+
         const targetFolder = path.join(__dirname, "target");
         const savePath = path.join(targetFolder, `${fileName}.${extension}`);
         const dir = path.dirname(savePath);
@@ -1287,15 +1273,19 @@ export class AppService {
 
       // Process all Base64 files dynamically
       base64Fields.forEach((field) => {
+        let fileNameWithTimestamp;
         // Ensure that the field value is a non-empty base64 string before calling processFile
         if (
           field.value &&
           typeof field.value === "string" &&
-          field.value.startsWith("data:")
+          field.value.startsWith("base64,") // New check for 'base64,'
         ) {
-          processFile(field.value, field.name);
+          const timestamp = Date.now(); // Get the current timestamp
+          fileNameWithTimestamp = `${field.name}_${timestamp}`;
+
+          processFile(field.value, fileNameWithTimestamp);
         } else {
-          console.warn(`Skipping non-base64 field: ${field.name}`);
+          console.warn(`Skipping non-base64 field: ${fileNameWithTimestamp}`);
         }
       });
 
@@ -1315,7 +1305,7 @@ export class AppService {
       const application_id = data?.Applications?.[0]?.id;
       console.log("Response Data:", data);
 
-      //Clean up all temporary files
+      // Clean up all temporary files
       savePaths.forEach((filePath) => {
         if (fs.existsSync(filePath)) {
           fs.unlinkSync(filePath);
