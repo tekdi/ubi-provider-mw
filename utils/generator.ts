@@ -1012,7 +1012,7 @@ export const selectItemMapperNew = (input: any, schemaJson?: any) => {
       return {
         display: true,
         descriptor: {
-          code: `${eligibilityItem.type}-eligibility`,
+          code: `@eligibility`,
           name: `${eligibilityItem.type
             .charAt(0)
             .toUpperCase()}${eligibilityItem.type.slice(1)} eligibility`,
@@ -1021,7 +1021,7 @@ export const selectItemMapperNew = (input: any, schemaJson?: any) => {
         list: [
           {
             descriptor: {
-              code: `${eligibilityItem.criteria.name}-eligibility`,
+              code: `${eligibilityItem.criteria.name}`,
               name: `${eligibilityItem.criteria.name
                 .charAt(0)
                 .toUpperCase()}${eligibilityItem.criteria.name.slice(
@@ -1029,7 +1029,7 @@ export const selectItemMapperNew = (input: any, schemaJson?: any) => {
               )} eligibility`,
               short_desc: eligibilityItem.description || "",
             },
-            value: conditionValues,
+            value: JSON.stringify(eligibilityItem.criteria),
             display: true,
           },
         ],
