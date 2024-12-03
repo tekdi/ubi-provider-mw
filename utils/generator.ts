@@ -436,7 +436,6 @@ export const generateOrder = (
 };
 
 export const selectItemMapper = (providerArr: any) => {
-  console.log("providerArr-->>", JSON.stringify(providerArr));
   const id = providerArr[0].provider_id;
 
   const descriptor: components["schemas"]["Descriptor"] = {
@@ -524,7 +523,7 @@ export const selectItemMapper = (providerArr: any) => {
           const tag = {
             display: true,
             descriptor: {
-              code: `${eligibilityItem.type}-eligibility`,
+              code: `@eligibility`,
               name: `${
                 eligibilityItem.type.charAt(0).toUpperCase() +
                 eligibilityItem.type.slice(1)
@@ -534,14 +533,14 @@ export const selectItemMapper = (providerArr: any) => {
             list: [
               {
                 descriptor: {
-                  code: `${eligibilityItem.criteria.name}-eligibility`,
+                  code: `${eligibilityItem.criteria.name}`,
                   name: `${
                     eligibilityItem.criteria.name.charAt(0).toUpperCase() +
                     eligibilityItem.criteria.name.slice(1)
                   } eligibility`,
                   short_desc: eligibilityItem.description || "",
                 },
-                value: conditionValues,
+                value: JSON.stringify(eligibilityItem?.criteria),
                 display: true,
               },
             ],

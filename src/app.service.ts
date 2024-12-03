@@ -295,8 +295,6 @@ export class AppService {
         flnResponse
       );
 
-      console.log("mappedResponse-->>", mappedResponse);
-
       const catalog = flnCatalogGenerator(mappedResponse, name);
       body.context.action = "on_search";
       const courseData: any = {
