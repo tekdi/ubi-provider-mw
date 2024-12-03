@@ -693,7 +693,7 @@ export const selectItemMapper = (providerArr: any) => {
         },
         price: {
           currency: course?.benefitContent?.currency || "$",
-          value: course?.benefitContent?.amount || "5000",
+          value: course?.benefitContent?.amount?.toString() || "5000",
         },
         time: {
           range: {
@@ -1307,7 +1307,7 @@ export const selectItemMapperNew = (input: any, schemaJson?: any) => {
         },
         price: {
           currency: input?.[0]?.benefitContent?.currency || "$",
-          value: input?.[0]?.benefitContent?.amount || "5000",
+          value: input?.[0]?.benefitContent?.amount?.toString() || "5000",
         },
         time: {
           range: {
@@ -1421,7 +1421,7 @@ export const confirmItemMapperNew = (input: any) => {
           },
           price: {
             currency: input?.[0]?.benefitContent?.currency || "$",
-            value: input?.[0]?.benefitContent?.amount || "5000",
+            value: input?.[0]?.benefitContent?.amount?.toString() || "5000",
           },
           time: {
             range: {
