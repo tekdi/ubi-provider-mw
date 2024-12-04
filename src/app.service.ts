@@ -587,23 +587,21 @@ export class AppService {
     let response = [];
     let schemaJson;
     let benefit_id;
-    console.log("status api calling", body);
+
     // fine tune the order here
     let itemId = body?.message?.order_id;
 
     //get application details from itemId
     let applicationData = await axios.post(
-      `${this.strapi_base_url}/application/v1/getByApplicationId`,
+      `${this.strapi_base_url}/application/v1/getApplicationByOrderId`,
       {
-        applicationId: itemId,
+        orderId: itemId,
       }
     );
 
-    console.log("applicationdata-->>", applicationData);
-
     //get benefit details as per the benefit id returned from the application details api
 
-    benefit_id = applicationData?.data?.contentId;
+    benefit_id = applicationData?.data?.[0]?.contentId;
 
     const benefitData = await axios.post(
       `${this.strapi_base_url}/benefits/v1/_get`,
@@ -613,7 +611,7 @@ export class AppService {
     );
 
     // Extract wfStatus from applicationData
-    let wfStatus = applicationData.data?.wfStatus;
+    let wfStatus = applicationData.data?.[0]?.wfStatus;
 
     // Add wfStatus to benefitData.data
     if (wfStatus) {
@@ -636,7 +634,7 @@ export class AppService {
         name,
         phone,
         email,
-      }))(applicationData.data),
+      }))(applicationData?.data?.[0]),
       payments: [
         {
           params: {
@@ -857,7 +855,7 @@ export class AppService {
         authToken: "token",
         userInfo: {
           id: 24226,
-          uuid: "11b0e02b-0145-4de2-bc42-c97b96264807",
+          uuid: uuidv4,
           userName: "amr001",
           name: "leela",
           mobileNumber: "9814424443",
@@ -868,9 +866,7 @@ export class AppService {
         },
       },
       applicationId: application_id,
-      order_id: order_id,
-      submission_id: submission_id,
-      status: "",
+      orderId: order_id,
     };
 
     // Axios POST call
