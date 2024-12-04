@@ -1,4 +1,4 @@
-name: Deploy to Piramal-OU-Dev
+name: Deploy to DEV
 on:
   push:
     branches:
