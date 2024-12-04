@@ -842,8 +842,6 @@ export class AppService {
     const mappedResponse = await this.mapFlnResponseToDesiredFormat(response);
     // Use the mapping function to transform the response
 
-    console.log("mappedResonse-->>", mappedResponse);
-
     const order_id: string = "TLEXP_" + this.generateRandomString();
     mappedResponse[0].order_id = order_id;
 
@@ -1221,8 +1219,8 @@ export class AppService {
             currentSchoolAddress: body?.currentSchoolAddress || "N/A",
             currentSchoolAddressDistrict:
               body?.currentSchoolAddressDistrict || "N/A",
-            currentClass: body?.currentClass || "N/A",
-            previousYearMarks: body?.previousYearMarks || "N/A",
+            currentClass: body?.class || "N/A",
+            previousYearMarks: body?.previousClassMarks || "N/A",
             studentType: body?.studentType || "N/A",
             aadharLast4Digits: body?.aadharLast4Digits || "0000",
           },
