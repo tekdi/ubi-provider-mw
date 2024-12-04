@@ -599,6 +599,8 @@ export class AppService {
       }
     );
 
+    console.log("applicationdata-->>", applicationData);
+
     //get benefit details as per the benefit id returned from the application details api
 
     benefit_id = applicationData?.data?.contentId;
@@ -875,7 +877,7 @@ export class AppService {
 
     // Axios POST call
     const orderDetails = await fetch(
-      "https://devpiramal.tekdinext.com/application/v1/_updatestatus",
+      `${this.strapi_base_url}/application/v1/_update`,
       {
         method: "POST",
         headers: {
@@ -1286,7 +1288,7 @@ export class AppService {
 
       // Make the POST request
       const response = await fetch(
-        "https://devpiramal.tekdinext.com/application/v1/_create",
+        `${this.strapi_base_url}/application/v1/_create`,
         {
           method: "POST",
           body: formData,
