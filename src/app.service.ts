@@ -842,7 +842,7 @@ export class AppService {
     const mappedResponse = await this.mapFlnResponseToDesiredFormat(response);
     // Use the mapping function to transform the response
 
-    const order_id: string = "TLEXP_" + this.generateRandomString();
+    const order_id: string = `TLEXP_${this.generateRandomString()}_${Date.now()}`;
     mappedResponse[0].order_id = order_id;
 
     const updateCustomerPayload = {
