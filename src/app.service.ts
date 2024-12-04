@@ -1210,22 +1210,21 @@ export class AppService {
             id: uuidv4(),
             applicationId: null,
             studentName: `${body?.firstName} ${body?.lastName}` || "JOHN DOE",
-            fatherName: body?.fatherName || "GEORGE",
-            caste: body?.caste || "GENERAL",
-            income: body?.annualIncome || "5000",
-            gender: body?.gender || "All",
+            fatherName: body?.fatherName || "N/A",
+            caste: body?.caste || "N/A",
+            income: body?.annualIncome || "N/A",
+            gender: body?.gender || "N/A",
             age: body?.age || 10,
             disability: body?.disability || false,
-            samagraId: body?.samagra_id || "samagra-001",
-            currentSchoolName: body?.currentSchoolName || "ABC High School",
-            currentSchoolAddress:
-              body?.currentSchoolAddress || "123 Main St, City, State",
+            samagraId: body?.samagra_id || "N/A",
+            currentSchoolName: body?.currentSchoolName || "N/A",
+            currentSchoolAddress: body?.currentSchoolAddress || "N/A",
             currentSchoolAddressDistrict:
-              body?.currentSchoolAddressDistrict || "District 1",
-            currentClass: body?.currentClass || "10",
-            previousYearMarks: body?.previousYearMarks || "85",
-            studentType: body?.studentType || "Regular",
-            aadharLast4Digits: body?.aadharLast4Digits || "1234",
+              body?.currentSchoolAddressDistrict || "N/A",
+            currentClass: body?.currentClass || "N/A",
+            previousYearMarks: body?.previousYearMarks || "N/A",
+            studentType: body?.studentType || "N/A",
+            aadharLast4Digits: body?.aadharLast4Digits || "0000",
           },
           schema: JSON.stringify(schema),
         },
@@ -1300,7 +1299,7 @@ export class AppService {
 
       const data = await response.json();
       const application_id = data?.Applications?.[0]?.id;
-      console.log("Response Data:", data);
+      console.log("Response Data:", JSON.stringify(data));
 
       // Clean up all temporary files
       savePaths.forEach((filePath) => {
