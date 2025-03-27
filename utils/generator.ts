@@ -694,8 +694,8 @@ export const selectItemMapper = (providerArr: any) => {
         },
         time: {
           range: {
-            start: "2024-10-31T00:00:00+00:00",
-            end: "2025-06-31T00:00:00+00:00",
+            start: course?.basicDetails?.applicationOpenDate || "2025-02-28T00:00:00+00:00",
+            end: course?.basicDetails?.applicationCloseDate || "2025-06-31T00:00:00+00:00",
           },
         },
         rateable: false,
