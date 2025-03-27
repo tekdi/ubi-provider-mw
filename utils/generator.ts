@@ -43,8 +43,8 @@ export const flnCatalogGeneratorV3 = (apiData: any, query: string) => {
                 url:
                   course.image === null
                     ? encodeURI(
-                        "https://thumbs.dreamstime.com/b/set-colored-pencils-placed-random-order-16759556.jpg"
-                      )
+                      "https://thumbs.dreamstime.com/b/set-colored-pencils-placed-random-order-16759556.jpg"
+                    )
                     : encodeURI(course.image),
               },
             ],
@@ -156,8 +156,8 @@ export const flnCatalogGeneratorV4 = (apiData: any, query: string) => {
                 url:
                   course.attributes.image == null
                     ? encodeURI(
-                        "https://thumbs.dreamstime.com/b/set-colored-pencils-placed-random-order-16759556.jpg"
-                      )
+                      "https://thumbs.dreamstime.com/b/set-colored-pencils-placed-random-order-16759556.jpg"
+                    )
                     : encodeURI(course.attributes.image),
               },
             ],
@@ -317,8 +317,8 @@ export const scholarshipCatalogGenerator = (apiData: any, query: string) => {
                 url:
                   course.image == null
                     ? encodeURI(
-                        "https://thumbs.dreamstime.com/b/set-colored-pencils-placed-random-order-16759556.jpg"
-                      )
+                      "https://thumbs.dreamstime.com/b/set-colored-pencils-placed-random-order-16759556.jpg"
+                    )
                     : encodeURI("https://image/" + course.image),
               },
             ],
@@ -524,20 +524,18 @@ export const selectItemMapper = (providerArr: any) => {
             display: true,
             descriptor: {
               code: `@eligibility`,
-              name: `${
-                eligibilityItem.type.charAt(0).toUpperCase() +
+              name: `${eligibilityItem.type.charAt(0).toUpperCase() +
                 eligibilityItem.type.slice(1)
-              } eligibility`,
+                } eligibility`,
               short_desc: eligibilityItem.description || "",
             },
             list: [
               {
                 descriptor: {
                   code: `${eligibilityItem.criteria.name}`,
-                  name: `${
-                    eligibilityItem.criteria.name.charAt(0).toUpperCase() +
+                  name: `${eligibilityItem.criteria.name.charAt(0).toUpperCase() +
                     eligibilityItem.criteria.name.slice(1)
-                  } eligibility`,
+                    } eligibility`,
                   short_desc: eligibilityItem.description || "",
                 },
                 value: JSON.stringify(eligibilityItem?.criteria),
@@ -697,7 +695,7 @@ export const selectItemMapper = (providerArr: any) => {
         time: {
           range: {
             start: "2024-10-31T00:00:00+00:00",
-            end: "2024-12-31T00:00:00+00:00",
+            end: "2025-06-31T00:00:00+00:00",
           },
         },
         rateable: false,
@@ -1025,8 +1023,8 @@ export const selectItemMapperNew = (input: any, schemaJson?: any) => {
               name: `${eligibilityItem.criteria.name
                 .charAt(0)
                 .toUpperCase()}${eligibilityItem.criteria.name.slice(
-                1
-              )} eligibility`,
+                  1
+                )} eligibility`,
               short_desc: eligibilityItem.description || "",
             },
             value: JSON.stringify(eligibilityItem.criteria),
